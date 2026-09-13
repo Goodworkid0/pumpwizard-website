@@ -79,6 +79,16 @@ def main():
         now=time.time()
         try: result=collect(config,now)
         except Exception: result={'status':'attention','checks':{'monitor_inputs':False},'checked_at':now}
+        try:
+            from scripts.storage_growth import record
+            growth=record(ROOT/'data',now)
+            result.setdefault('details',{})['database_storage']=growth
+            days=growth['estimated_days_to_disk_reserve']
+            if days is not None:
+                result['checks']['database_capacity_horizon']=days>=3
+                if days<3:result['status']='attention'
+        except Exception:
+            result['checks']['storage_metrics']=False;result['status']='attention'
         if args.notify:
             if not config.get('notify'): raise ValueError('Notifications disabled')
             from lab_backup.transport import Transport

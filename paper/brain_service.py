@@ -146,9 +146,13 @@ class BrainService:
         backend=os.environ.get('PUMP_LEDGER_BACKEND','sqlite')
         if backend not in ('sqlite','postgres'): raise ValueError('Unknown ledger backend')
         self.runtime_backend=None
+        self.input_archive=None
         if backend=='postgres':
             from .postgres_runtime import activate
             self.runtime_backend=activate(self,os.environ['PUMP_POSTGRES_DSN'],os.environ['PUMP_POSTGRES_NAMESPACE'])
+        elif self.ladder_enabled:
+            from .shared_inputs import activate
+            self.input_archive=activate(self)
         self.threads=[threading.Thread(target=self._market_loop,daemon=True),threading.Thread(target=self._risk_loop,daemon=True)]
         for thread in self.threads:thread.start()
 
@@ -161,6 +165,7 @@ class BrainService:
                 for experiment in self.experiment_runners:experiment['runner'].close()
                 self.runner.close()
             if self.shared:self.shared.close()
+            if self.input_archive:self.input_archive.close()
             self.memory.close()
             if self.runtime_backend: self.runtime_backend.close()
 

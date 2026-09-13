@@ -1,11 +1,63 @@
-# Storage rework — measured proposal, 2026-09-13
+# Storage rework — implementation and measured proposal
+
+## Implemented on production, 2026-09-14
+
+Stages 1 and 2 below are deployed. Immutable strategy implementation files and
+configuration hashes match the previous production image. `paper/shared_inputs.py`
+attaches through `BrainService` before threads start, durably archives a raw input
+once, and commits each instance reference atomically with its existing state/history
+transaction. Connection-local readers and replay-package generation support mixed
+and fully converted input storage. Ledger markers enable portable restoration even
+if the optional `data/input-storage.json` activation file is absent.
+
+71 embedded-input ledgers converted from 50,347,524,096 bytes to 425,242,624 bytes.
+The shared archive contains original raw and feature-bearing payload variants.
+All 251 stored instance ledgers now use references; 262 total SQLite files measured
+3,571,531,776 bytes after activation (WAL files and other artifacts are additional).
+The 71 superseded files are reclaimed only through
+`scripts/finalize_input_compaction.py --apply`, which checks archive hashes,
+contracts, historical row prefixes, original file hashes and input-reference
+coverage. Reclamation completed: all 71 superseded originals were removed,
+freeing 50,347,524,096 bytes. Their logical history remains in the compact ledgers
+and shared archive; the old binary copies are no longer retained. Proofs remain
+in the migration's `reclamation.json` and `migration.json`.
+
+After reclamation, production had 159,041,572,864 bytes free. The entire live data
+directory measured 4,949,069,118 bytes including WAL and published artifacts;
+these sizes continue changing during collection. A five-minute, 60-request public
+health/catalog check recorded zero failures and 121.39 ms p95 latency. Backups were
+disabled during this check; this is not a capacity or backup-coexistence test.
+
+Evidence: 274 full regression tests passed; targeted growth and final reclamation
+tests passed separately. All six original/V2/V3 Ladder/Research types matched state,
+reports and ordered history proofs. A real V3 Ladder ledger replayed all 14,835
+inputs after conversion, matching final state/history; independent package replay
+also passed. That ledger shrank from 352,169,984 to 3,514,368 bytes, excluding the
+shared archive. Production browser tests passed for history/export flows, six-page
+layout and existing replay download links. These tests do not establish the new
+24-hour production growth rate.
+
+Production release: `/opt/pump-paper/releases/20260914-shared-inputs`.
+Image: `sha256:45c2f348d4ef24b47495961e7c1ff47d90bf500cd1031d2b7b9386f317b2ebce`.
+Migration journal: `/opt/pump-paper/data/input-migration-20260914/migration.json`.
+The collector pause lasted about five minutes. Previous container images remain
+available, but restarting pre-migration code against converted ledgers is unsafe;
+rollback must use current input references or materialize current shared payloads.
+
+The existing operational monitor records database/WAL sizes and a bounded 24-hour
+sample history in `data/storage-growth.json`, resets on storage generation changes,
+and reports a rate after at least 30 minutes. It warns below three projected days
+to the disk reserve. The long-term rate still needs observation. Stages 3 and 4
+remain follow-up design work; PostgreSQL and Telegram backups remain disabled.
+
+## Original design and sizing evidence (2026-09-13)
 
 Status: Telegram backup production timer stopped/disabled, backup service inactive,
 and `backup_enabled: false` persisted in both production and local private config.
 New daily, smoke and upload commands skip before opening credentials or transport.
 Existing recovery files and Telegram objects are retained. Site/disk monitoring
 continues; backup-specific checks report intentional disablement. This document
-plans the database migration; that migration has not been applied.
+records the migration design; implementation status is reported above.
 
 ## Evidence and budget
 

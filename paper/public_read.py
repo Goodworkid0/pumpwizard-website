@@ -29,6 +29,8 @@ def readonly(path, deadline=None):
     if runtime is not None: return runtime
     con = sqlite3.connect(Path(path).resolve().as_uri() + '?mode=ro', uri=True, timeout=1)
     con.row_factory = sqlite3.Row
+    from .shared_inputs import read_connection
+    con=read_connection(con,path)
     con.execute('PRAGMA query_only=ON')
     if deadline:
         con.set_progress_handler(lambda: int(time.monotonic() > deadline), 10000)

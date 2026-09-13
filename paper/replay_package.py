@@ -249,17 +249,20 @@ def create(ledger, shared_archive, destination, *, frozen_source=False, max_inpu
         state = json.loads(con.execute("SELECT value FROM meta WHERE key='state'").fetchone()[0])
         output.write('contract.json', contract)
         output.write('expected.json', {'state': state, 'tables': {t: table_proof(con, t) for t in TABLES}})
-        if issubclass(cls, ResearchRunner):
+        from .shared_inputs import marked
+        if issubclass(cls, ResearchRunner) or marked(con):
             if not shared_archive: raise ValueError('Shared research archive is required')
             shared = frozen(shared_archive)
-            refs = con.execute('SELECT id,at FROM input_refs ORDER BY at')
+            refs = con.execute('SELECT id,at FROM input_refs UNION SELECT id,at FROM inputs ORDER BY at')
         else:
             refs = con.execute('SELECT id,at FROM inputs ORDER BY at')
         count = 0
         for ref in refs:
             count += 1
             if count > max_inputs: raise ValueError('Input count exceeds the bounded package limit')
-            row = (shared or con).execute('SELECT payload FROM inputs WHERE id=?', (ref['id'],)).fetchone()
+            row = con.execute('SELECT payload FROM inputs WHERE id=?', (ref['id'],)).fetchone()
+            if row is None and shared:
+                row = shared.execute('SELECT payload FROM inputs WHERE id=?', (ref['id'],)).fetchone()
             if row is None: raise ValueError('Referenced input is missing from shared archive')
             item = {'id':ref['id'], 'at':ref['at'],
                     'payload_zlib_base64':base64.b64encode(row[0]).decode('ascii')}

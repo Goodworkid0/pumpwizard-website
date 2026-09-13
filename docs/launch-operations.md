@@ -122,6 +122,13 @@ Update 2026-09-13: the operator explicitly paused Telegram backups pending the
 `backup_enabled: false`; production backup scheduling is disabled. The monitor
 continues checking readiness and disk while marking backup checks disabled.
 
+Update 2026-09-14: the shared-input storage adapter and historical compaction are
+deployed; see the [implementation record](storage-rework-plan.md). The old
+full-backup capacity shortfall below is historical. Telegram remains paused by
+operator choice, independent of the newly reclaimed capacity. Growth monitoring
+now measures the new storage generation. Broad-scale testing, retention and a new
+backup design remain separate work.
+
 1. Resolve the next full backup's measured capacity shortfall. After approved
    retention, roughly 103 GiB was free while the 49 GiB live source required about
    155 GiB including reserve. Measurements change as collection continues;

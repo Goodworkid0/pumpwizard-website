@@ -1,0 +1,37 @@
+{
+  "scope": "Shared-input production storage migration; not a long-term growth guarantee",
+  "image": "sha256:45c2f348d4ef24b47495961e7c1ff47d90bf500cd1031d2b7b9386f317b2ebce",
+  "immutable_strategy_code_and_configs_unchanged": true,
+  "full_regression_suite": {"passed": 274, "seconds": 50.335},
+  "additional_targeted_checks": ["growth monitoring", "verified original reclamation", "production-image strategy and conversion tests"],
+  "synthetic_matrix": {"runner_types": 6, "state_reports_history_and_replay_match": true},
+  "real_replay": {
+    "instance": "t2-breakout-combined", "inputs": 14835, "seconds": 438.52,
+    "source_ledger_bytes": 352169984, "compact_ledger_bytes": 3514368,
+    "shared_archive_additional": true, "independent_package_replay_verified": true
+  },
+  "production": {
+    "phase": "live", "stored_instance_ledgers": 251, "sqlite_files": 262,
+    "converted_ledgers": 71, "converted_original_bytes": 50347524096,
+    "converted_compact_bytes": 425242624,
+    "all_sqlite_bytes_after_activation": 3571531776,
+    "migration_started_at": 1789337731.1997201, "migration_completed_at": 1789338011.7927668,
+    "activation_completed_at": 1789338040.5089076,
+    "new_embedded_input_rows": 0,
+    "browser_workflows": "passed", "page_layouts": "passed", "replay_downloads": "passed",
+    "telegram_backups_enabled": false,
+    "reclamation": {
+      "status": "reclaimed", "files": 71, "removed_bytes": 50347524096,
+      "verified_at": 1789338384.792212,
+      "evidence": "input-migration-20260914/reclamation.json"
+    },
+    "post_reclamation_free_bytes": 159041572864,
+    "post_reclamation_data_directory_bytes_including_wal_and_artifacts": 4949069118,
+    "public_soak": {
+      "seconds": 300, "requests": 60, "failures": 0, "p95_ms": 121.39,
+      "scope": "Low-rate health/catalog check with collector active and backups disabled; not a capacity test"
+    },
+    "daily_growth_estimate": null,
+    "growth_note": "Requires a longer post-migration observation window"
+  }
+}
