@@ -7,10 +7,10 @@ import unittest
 from pathlib import Path
 
 from paper.market_archive import MarketArchive
-from paper.raydium_cpmm import RaydiumCatalogError, catalog_url, ingest_catalog
+from paper.raydium_cpmm import CPMM_PROGRAM_ID, RaydiumCatalogError, catalog_url, ingest_catalog
 
 
-PROGRAM = 'CPMMoo8L3F4NbTegBCKVNwqH6Jm6zLxZCNZfY8Y7dP'
+PROGRAM = CPMM_PROGRAM_ID
 POOL = '7YttLkHqSW1veWDdtYKDdRSZG6p25LoVCmmLsoq2inD4'
 BASE = 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6z5L7fegQY5W6B5z'
 QUOTE = 'So11111111111111111111111111111111111111112'
@@ -70,6 +70,13 @@ class RaydiumCpmmTests(unittest.TestCase):
         self.assertEqual(len(report['accepted_pool_ids']), 1)
         self.assertEqual(report['appended'], {'tokens': 2, 'pools': 1})
         self.assertEqual(report['rejected'][0]['reason'], 'Invalid pool_address')
+
+    def test_unexpected_program_is_not_assumed_to_be_cpmm(self):
+        other = cpmm()
+        other['programId'] = '9xQeWvG816bUx9EPfBybboqB2LQf3g92TLJGwvCz6Tw'
+        report = ingest_catalog({'data': [other]}, self.archive, 1000)
+        self.assertEqual(report['appended'], {'tokens': 0, 'pools': 0})
+        self.assertEqual(report['rejected'][0]['reason'], 'Unexpected Raydium CPMM program')
 
     def test_offline_cli_writes_new_raw_report_and_archive(self):
         source = self.root / 'catalog.json'

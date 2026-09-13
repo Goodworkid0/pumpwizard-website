@@ -276,6 +276,34 @@ class MarketArchive:
                 raise ArchiveError('Unknown pool for state')
             return self._append('pool_states', (('pool_id', data['pool_id']), ('slot', data['slot']), ('write_version', data['write_version'])), data)
 
+    def add_pool_states(self, records):
+        """Atomically append a batch of independently slot-versioned states."""
+        normalized = [normalize_pool_state(record) for record in records]
+        keyed = {(record['pool_id'], record['slot'], record['write_version']): record
+                 for record in normalized}
+        if len(keyed) != len(normalized):
+            for record in normalized:
+                key = (record['pool_id'], record['slot'], record['write_version'])
+                if keyed[key] != record:
+                    raise ArchiveError('Conflicting pool states in batch')
+        if self.view_only:
+            raise ArchiveError('Archive is read-only')
+        with self.lock, self.db:
+            for pool, _, _ in keyed:
+                if not self.db.execute('SELECT 1 FROM pools WHERE id=?', (pool,)).fetchone():
+                    raise ArchiveError('Unknown pool for state')
+            return sum(self._append('pool_states',
+                                    (('pool_id', record['pool_id']), ('slot', record['slot']),
+                                     ('write_version', record['write_version'])), record)
+                       for record in keyed.values())
+
+    def get_pool(self, identity):
+        """Read one normalized pool identity without creating or changing anything."""
+        identity = _string(identity, 'pool_id', 1, 200)
+        with self.lock:
+            row = self.db.execute('SELECT data FROM pools WHERE id=?', (identity,)).fetchone()
+        return json.loads(row['data']) if row else None
+
     def manifest(self):
         """Return a deterministic proof of all immutable records, not a trust claim."""
         with self.lock:

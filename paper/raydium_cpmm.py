@@ -23,6 +23,7 @@ BASE = 'https://api-v3.raydium.io'
 PATH = '/pools/info/list-v2'
 SCHEMA = 'pumpwizard.raydium-cpmm-shadow/v1'
 MAX_BODY_BYTES = 4_000_000
+CPMM_PROGRAM_ID = 'CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C'
 
 
 class RaydiumCatalogError(ValueError):
@@ -58,6 +59,8 @@ def _pool(item):
         raise RaydiumCatalogError('Not a CPMM pool')
     if item.get('marketId') is not None:
         raise RaydiumCatalogError('Legacy standard AMM is unsupported')
+    if item.get('programId') != CPMM_PROGRAM_ID:
+        raise RaydiumCatalogError('Unexpected Raydium CPMM program')
     a = normalize_token(_token(item.get('mintA'), 'mintA'))
     b = normalize_token(_token(item.get('mintB'), 'mintB'))
     # These dynamic values remain in the raw shadow report only. They receive no
