@@ -71,6 +71,11 @@ def token_id(mint):
     return 'solana:' + _address(mint, 'mint')
 
 
+def solana_address(value, name='address'):
+    """Validate and return a Solana public-key address for collector adapters."""
+    return _address(value, name)
+
+
 def pool_id(program_id, address):
     return 'solana:' + _address(program_id, 'program_id') + ':' + _address(address, 'pool_address')
 
@@ -222,6 +227,40 @@ class MarketArchive:
                 if not self.db.execute('SELECT 1 FROM tokens WHERE id=?', (token_id(mint),)).fetchone():
                     raise ArchiveError('Unknown token for pool')
             return self._append('pools', (('id', data['id']),), data)
+
+    def add_identities(self, tokens, pools):
+        """Atomically append a normalized token/pool discovery batch.
+
+        A catalog page has no chain slot or executable reserve state.  This method
+        therefore records only immutable identities and refuses a page whose pool
+        references neither an already recorded nor a newly supplied token.
+        """
+        normalized_tokens = [normalize_token(record) for record in tokens]
+        normalized_pools = [normalize_pool(record) for record in pools]
+        token_records = {record['id']: record for record in normalized_tokens}
+        if len(token_records) != len(normalized_tokens):
+            for record in normalized_tokens:
+                if token_records[record['id']] != record:
+                    raise ArchiveError('Conflicting token identities in batch')
+        pool_records = {record['id']: record for record in normalized_pools}
+        if len(pool_records) != len(normalized_pools):
+            for record in normalized_pools:
+                if pool_records[record['id']] != record:
+                    raise ArchiveError('Conflicting pool identities in batch')
+        if self.view_only:
+            raise ArchiveError('Archive is read-only')
+        with self.lock, self.db:
+            known = {row[0] for row in self.db.execute('SELECT id FROM tokens')}
+            known.update(token_records)
+            for pool in pool_records.values():
+                for mint in (pool['base_mint'], pool['quote_mint']):
+                    if token_id(mint) not in known:
+                        raise ArchiveError('Unknown token for pool')
+            added_tokens = sum(self._append('tokens', (('id', record['id']),), record)
+                               for record in token_records.values())
+            added_pools = sum(self._append('pools', (('id', record['id']),), record)
+                              for record in pool_records.values())
+            return {'tokens': added_tokens, 'pools': added_pools}
 
     def add_event(self, record):
         data = normalize_event(record)
