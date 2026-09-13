@@ -1,0 +1,12 @@
+[Unit]
+Description=PumpWizard read-only readiness, disk and backup-age check
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/c/Desktop/projekti/pump-agent
+ExecStart=/home/c/Desktop/projekti/pump-agent/.venv-backup/bin/python scripts/monitor_lab.py --notify
+TimeoutStartSec=60
+UMask=0077
+NoNewPrivileges=yes
+StandardOutput=journal
+StandardError=journal

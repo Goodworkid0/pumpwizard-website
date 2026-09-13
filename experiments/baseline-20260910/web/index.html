@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pump Paper — trading experiment</title><link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="#overview"><span class="mark">p</span> pump<span>paper</span></a>
+    <nav><a href="#overview">Overview</a><a href="#positions">Positions</a><a href="#trades">Trade journal</a><a href="#candidates">Watchlist</a></nav>
+    <span class="badge">SIMULATED MONEY</span></header>
+  <main>
+    <div class="heading" id="overview"><div><div class="eyebrow">PUMP.FUN · INTRADAY EXPERIMENT</div>
+      <h1>Test the strategy. Track every trade.</h1><p id="subtitle">Connecting to your paper ledger…</p></div>
+      <div class="feed"><span id="feed-dot"></span><b id="feed-status">Connecting</b><small id="last-update">Waiting for data</small></div>
+    </div>
+    <div id="notice" class="notice" role="status">Paper results estimate execution; they do not establish a profitable strategy.</div>
+    <section class="metrics" aria-label="Portfolio metrics">
+      <article><label>Virtual portfolio</label><strong id="equity">—</strong><small id="cash">—</small></article>
+      <article><label>Total net P&amp;L</label><strong id="pnl">—</strong><small id="realized">—</small></article>
+      <article><label>Closed trades / win rate</label><strong id="wins">—</strong><small id="expectancy">—</small></article>
+      <article><label>Modeled fees &amp; operating costs</label><strong id="costs">—</strong><small id="failures">—</small></article>
+    </section>
+    <section class="middle">
+      <article class="panel chart-panel"><div class="panel-title"><div><h2>Portfolio value</h2><p>Cash plus modeled full-position exit proceeds</p></div><span id="drawdown" class="tag">Drawdown —</span></div>
+        <div class="chart-wrap"><canvas id="chart" aria-label="Virtual portfolio value over observed time"></canvas><div id="chart-tooltip" class="chart-tooltip" hidden></div></div>
+        <div class="chart-footer"><span><i></i> Virtual equity</span><span id="chart-range">No observations yet</span></div>
+      </article>
+      <article class="panel"><div class="panel-title"><h2>Experiment rules</h2><span class="tag" id="version">v1</span></div>
+        <dl id="rules"></dl><p class="muted small">One paper attempt per token. Entries use price and reserve momentum. Buyer identities and holder concentration are unavailable in this feed.</p>
+      </article>
+    </section>
+    <section class="panel" id="positions"><div class="panel-title"><div><h2>Open positions <span class="count" id="position-count">0</span></h2><p>Missing exit quotes are valued at $0 conservatively and stay open.</p></div><span class="tag" id="pending-count">0 pending entries</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Token</th><th>Entry time</th><th>Entry price</th><th>Cost</th><th>Exit value</th><th>Unrealized P&amp;L</th><th>Status</th></tr></thead><tbody id="open-body"><tr><td colspan="7" class="empty">No positions yet. The strategy waits for eligible observations.</td></tr></tbody></table></div>
+    </section>
+    <section class="panel" id="trades"><div class="panel-title"><div><h2>Trade journal</h2><p>Prices include modeled costs. Trade P&amp;L excludes separately reported failed attempts and operating costs.</p></div><div class="actions"><input id="search" type="search" placeholder="Search token or address" aria-label="Search trades"><a class="button" href="/api/trades.csv" download="paper-trades.csv">Export CSV ↗</a></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Token</th><th>Entry time</th><th>Entry cap</th><th>Entry price</th><th>Exit price</th><th>Net P&amp;L</th><th>Return</th><th>Hold</th><th>Exit reason</th></tr></thead><tbody id="trade-body"></tbody></table></div>
+    </section>
+    <section class="middle lower">
+      <article class="panel"><div class="panel-title"><h2>Results by entry market cap</h2></div><div id="bands" class="bands"></div><div class="concentration"><span>P&amp;L without the largest winner</span><strong id="concentration">—</strong></div><p class="muted small">Closed positions only. A small sample, selected watchlist, or a few large winners can make results misleading.</p></article>
+      <article class="panel"><div class="panel-title"><h2>Collection &amp; execution</h2><span class="tag" id="source">—</span></div><dl id="collection"></dl><div id="issues" class="small muted"></div></article>
+    </section>
+    <section class="panel" id="candidates"><div class="panel-title"><div><h2>Observed candidates</h2><p>Reasons explain each decision, including skipped trades.</p></div><span class="tag">Sampled public feed</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Token</th><th>Market cap</th><th>Real quote reserves</th><th>60s momentum</th><th>15s momentum</th><th>Decision</th><th>Observed</th></tr></thead><tbody id="candidate-body"></tbody></table></div>
+    </section>
+    <footer><span>PAPER ONLY · No wallet connection · No blockchain transactions</span><span>Snapshot estimates · Fees and fill assumptions are configurable</span></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "version": "ownership-v1",
+  "check_ttl_seconds": 120,
+  "max_holder_fraction": 0.10,
+  "max_top10_fraction": 0.35,
+  "max_transfer_fraction": 0.05,
+  "recent_seconds": 3600,
+  "minimum_transactions": 5,
+  "transaction_limit": 12,
+  "request_spacing_seconds": 0.35,
+  "rpc_env": "SOLANA_RPC_URL"
+}

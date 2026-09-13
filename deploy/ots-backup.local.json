@@ -1,0 +1,6 @@
+{
+  "base_url": "http://127.0.0.1:8080",
+  "session_file": "/home/c/Desktop/projekti/pump-agent/data/ots-backup-session.json",
+  "alert_credentials_file": null,
+  "channel_auto_delete_confirmed_off": false
+}

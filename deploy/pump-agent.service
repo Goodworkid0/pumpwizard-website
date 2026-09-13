@@ -1,0 +1,23 @@
+[Unit]
+Description=Pump.fun paper trader and persistent coin memory
+StartLimitIntervalSec=0
+
+[Service]
+Type=exec
+WorkingDirectory=/home/c/Desktop/projekti/pump-agent
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/home/c/Desktop/projekti/pump-agent/data/service.env
+ExecStart=/usr/bin/python3 /home/c/Desktop/projekti/pump-agent/paper_trader.py live --config /home/c/Desktop/projekti/pump-agent/paper.cadence.config.json --db /home/c/Desktop/projekti/pump-agent/data/cadence.sqlite --port 8765
+Restart=always
+RestartSec=10
+TimeoutStopSec=90
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=yes
+LimitNOFILE=8192
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pump-agent
+
+[Install]
+WantedBy=default.target

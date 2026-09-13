@@ -1,0 +1,18 @@
+[Unit]
+Description=PumpWizard encrypted Telegram backup and read-back verification
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/c/Desktop/projekti/pump-agent
+ExecStart=/home/c/Desktop/projekti/pump-agent/.venv-backup/bin/python scripts/telegram_backup.py daily --apply
+TimeoutStartSec=26h
+TimeoutStopSec=30s
+UMask=0077
+NoNewPrivileges=yes
+Nice=15
+MemoryHigh=2G
+IOSchedulingClass=idle
+StandardOutput=journal
+StandardError=journal

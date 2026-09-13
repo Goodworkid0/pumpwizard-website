@@ -1,0 +1,10 @@
+[Unit]
+Description=Check PumpWizard public HTTPS every two minutes
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=2min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,29 @@
+name: pump-paper-landing
+services:
+  landing:
+    image: nginx:1.25-alpine
+    container_name: pump-paper-landing
+    restart: unless-stopped
+    volumes:
+      - ./landing/index.html:/usr/share/nginx/html/index.html:ro
+      - ./landing/style.css:/usr/share/nginx/html/style.css:ro
+      - ./landing/assets:/usr/share/nginx/html/assets:ro
+      - ./landing/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - proxy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    mem_limit: 64m
+    cpus: 0.25
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "2"
+networks:
+  proxy:
+    external: true
+    name: insidedb_insidedb-network

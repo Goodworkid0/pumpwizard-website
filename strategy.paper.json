@@ -1,0 +1,59 @@
+{
+  "id": "pump_intraday_momentum_v0",
+  "status": "paper_experiment_proposal",
+  "scope_interpretation": "10k–50k refers to token market capitalization in USD; awaiting clarification",
+  "live_enabled": false,
+  "hypothesis_validated": false,
+  "universe": {
+    "origin": "pump.fun",
+    "entry_market_cap_usd_min": 10000,
+    "entry_market_cap_usd_max": 50000,
+    "market_cap_metric": "provider_quoted_valuation_with_explicit_supply_definition",
+    "require_fresh_quote_asset_usd_conversion": true,
+    "require_actual_pool_state_and_route": true,
+    "range_applies_to_entries_only": true,
+    "evaluation_bands_usd": [
+      {"min": 10000, "max": 20000, "upper_inclusive": false},
+      {"min": 20000, "max": 35000, "upper_inclusive": false},
+      {"min": 35000, "max": 50000, "upper_inclusive": true}
+    ]
+  },
+  "observation": {
+    "minimum_history_seconds": 60,
+    "flow_windows_seconds": [15, 60],
+    "features": [
+      "distinct_buyers",
+      "buyer_growth",
+      "net_buy_quote_value",
+      "buyer_and_holder_concentration",
+      "creator_sales",
+      "linked_wallet_activity",
+      "exact_size_exit_quote",
+      "roundtrip_cost_estimate",
+      "data_freshness"
+    ],
+    "entry_score_threshold": null,
+    "entry_rule_frozen": false,
+    "record_rejected_candidates": true,
+    "record_event_and_arrival_timestamps": true
+  },
+  "exit_baseline": {
+    "profit_trigger_net_return_bps": 2000,
+    "loss_trigger_net_return_bps": -1000,
+    "max_hold_seconds": 600,
+    "fraction_to_exit": 1.0,
+    "return_basis": "full_position_executable_net_proceeds_divided_by_acquisition_cost_minus_one",
+    "loss_trigger_guarantees_fill_or_max_loss": false,
+    "unexecutable_exit_state": "exit_pending_position_remains_open"
+  },
+  "execution_model": {
+    "fill_at_last_traded_price": false,
+    "include_measured_latency": true,
+    "include_own_trade_price_impact": true,
+    "include_protocol_and_route_fees": true,
+    "include_network_fees_tips_and_rent": true,
+    "include_failed_attempt_costs": true,
+    "allow_averaging_down": false,
+    "require_capital_and_execution_limits_from_policy": true
+  }
+}

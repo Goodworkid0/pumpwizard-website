@@ -1,0 +1,4 @@
+# Dedicated optional runtime, separate from the live application.
+Telethon==1.44.0
+cryptg==0.5.0
+cryptography==46.0.7

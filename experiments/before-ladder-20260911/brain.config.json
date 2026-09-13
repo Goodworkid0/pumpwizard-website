@@ -1,0 +1,22 @@
+{
+  "version": "coin-memory-v1",
+  "history_files": ["live.sqlite", "frequent.sqlite", "cadence.sqlite"],
+  "refresh_seconds": 30,
+  "probe_limit": 12,
+  "minimum_history_hours": 6,
+  "minimum_active_buckets": 12,
+  "minimum_growth_fraction": 0.5,
+  "maximum_drawdown_fraction": 0.35,
+  "runner_budget_usd": 100,
+  "runner_order_usd": 10,
+  "runner_max_positions": 3,
+  "runner_min_hold_seconds": 86400,
+  "runner_max_hold_seconds": 864000,
+  "runner_stop_fraction": -0.30,
+  "runner_trailing_fraction": 0.35,
+  "runner_fee_fraction": 0.025,
+  "runner_adverse_fraction": 0.01,
+  "runner_fixed_fee_usd": 0.10,
+  "runner_min_liquidity_usd": 10000,
+  "runner_enabled": true
+}

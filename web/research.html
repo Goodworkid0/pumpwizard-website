@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Research · PumpWizard.fun</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/home-extra.css">
+  <link rel="stylesheet" href="/research.css">
+  <link rel="stylesheet" href="/research-conditions.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">Pump<span>Wizard.fun</span></a>
+    <nav class="site-nav" aria-label="Primary navigation"><a href="/">Live View</a><a href="/engine">Engine</a><a href="/research" aria-current="page">Research</a><a href="/legal">Legal</a></nav>
+    <div class="live-ticker" aria-live="polite"><span class="live-feed-label" id="feed-status"><i></i> Live activity</span><span class="live-event" id="live-event">Connecting to activity feed…</span><time id="feed-updated">—</time></div>
+  </header>
+  <main class="research-main">
+    <section class="research-hero" aria-labelledby="research-title">
+      <div>
+        <p class="eyebrow">PumpWizard research lab</p>
+        <h1 id="research-title">Understand the strategy behind the results.</h1>
+        <p>PumpWizard helps you analyze trading strategies and carry the evidence into your own agent. We run independent simulations on live Pump.fun market data, record their decisions and outcomes, and make the configurations available to inspect and copy.</p>
+        <div class="research-actions"><a class="research-primary" href="/engine">Explore the Engine <span aria-hidden="true">→</span></a><a class="research-download" href="/api/public/research.csv" download>Download research data <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <aside class="research-hero-note"><p class="eyebrow">Operating boundary</p><strong>Research only</strong><span>Every agent starts with an isolated virtual $500 ledger. No visitor funds, wallet access, or live order execution.</span><a href="/legal">Read methodology <span aria-hidden="true">→</span></a></aside>
+    </section>
+
+    <section class="research-stats" aria-label="Research dataset coverage">
+      <article><b id="tracked-coins">—</b><span>Coins observed</span></article>
+      <article><b id="minute-bars">—</b><span>Market observations</span></article>
+      <article><b id="lifecycle-events">—</b><span>Decision records</span></article>
+      <article><b id="outcome-coverage">—</b><span>Forward outcomes</span></article>
+    </section>
+
+    <section class="research-section research-scope" aria-labelledby="scope-title">
+      <div class="research-section-heading"><p class="eyebrow">What the lab does</p><h2 id="scope-title">A repeatable loop for testing strategy ideas</h2><p>Each instance observes the same public market environment independently, with its own rules, ledger, and event history.</p></div>
+      <div class="scope-grid">
+        <article><span>01</span><h3>Observe market conditions</h3><p>We collect market-cap and price observations over time, alongside token and lifecycle context available in the public feed.</p></article>
+        <article><span>02</span><h3>Apply a defined strategy</h3><p>Rules govern entry bands, observation windows, position limits, exits, and modeled costs. Configurations remain inspectable.</p></article>
+        <article><span>03</span><h3>Record forward evidence</h3><p>Entries, exits, and scheduled outcome windows are preserved so later results can be compared with the original decision.</p></article>
+      </div>
+    </section>
+
+    <section class="constraint-panel" aria-labelledby="constraints-title">
+      <div class="constraint-intro"><p class="eyebrow">Constraints and scope</p><h2 id="constraints-title">What the numbers mean—and what they do not.</h2><p>We make the limits visible because a simulation is only useful when its assumptions and missing evidence are clear.</p></div>
+      <div class="constraint-list">
+        <article><h3>Modeled execution</h3><p>Fills, costs, and position marks are simulations. A displayed fill is not an on-chain order or evidence that a live trade could have been filled at the same price.</p></article>
+        <article><h3>Forward, not backfilled</h3><p>Once an instance starts, its ledger records what happens next. New variants receive separate instances rather than rewriting an older strategy’s history.</p></article>
+        <article><h3>Coverage is reported</h3><p>Late and missed outcome observations are shown separately. They do not count as on-time evidence, and incomplete coverage is never hidden as a successful result.</p></article>
+        <article><h3>No investment output</h3><p>The lab does not manage funds, provide personal advice, or guarantee a strategy’s future behavior. Results are research artifacts, not trade signals.</p></article>
+      </div><div class="execution-conditions"><p>Execution conditions we model</p><ul><li>Bonding-curve or indexed AMM reserve quotes</li><li>Configured swap fees, fixed network costs, and entry rent</li><li>Adverse fill allowance and round-trip cost limits</li><li>Entry / exit latency, expiring signals, and fresh-quote checks</li><li>Modeled failed attempts that can consume a fee without opening a position</li><li>Quote gaps and unavailable exits that remain visible in the ledger</li></ul><small>We do not recreate Solana mempool ordering, validator behavior, priority-fee auctions, routing, or every live liquidity condition. Parameters are published with each agent configuration.</small></div>
+    </section>
+
+    <section class="research-grid" aria-label="Measurement coverage">
+      <article class="research-card outcome-card"><p class="eyebrow">Forward measurement</p><h2>Outcome-window coverage</h2><p class="research-note">Scheduled observations test how outcomes develop after a modeled event. On-time coverage allows a delay of 10% of the horizon, with a minimum of 60 seconds and maximum of one hour.</p><p id="quality-summary" class="quality-summary"></p><div class="window-list" id="outcome-windows"><p class="empty">Loading outcome windows…</p></div></article>
+      <article class="research-card method-card"><p class="eyebrow">Measurement scope</p><h2>What we retain</h2><dl class="research-method"><div><dt>Market series</dt><dd>One-minute OHLC-style price and market-cap observations</dd></div><div><dt>Decision trail</dt><dd>Modeled entries, partial exits, final exits, and their timestamps</dd></div><div><dt>Forward horizons</dt><dd>5m, 15m, 1h, 6h, 24h, 7d, and 30d windows</dd></div><div><dt>Due now</dt><dd><span id="due-outcomes">—</span> coins awaiting their next scheduled measurement</dd></div></dl><a class="method-link" href="/engine">Inspect active instances <span aria-hidden="true">→</span></a></article>
+    </section>
+
+    <section class="research-card" id="replay-archives" aria-labelledby="archives-title">
+      <p class="eyebrow">Reproducible evidence</p><h2 id="archives-title">Verified replay archives</h2>
+      <p>Download reviewed, frozen strategy histories with exact configuration, implementation source, observed inputs and replay-derived decisions. Future price labels are separate from entry-time features. These are research datasets—not live trading bots or independent training samples.</p>
+      <div id="replay-package-list" aria-live="polite">Checking available archives…</div>
+    </section>
+
+    <section class="research-events" aria-labelledby="events-title">
+      <div class="section-head"><div><p class="eyebrow">Evidence ledger</p><h2 id="events-title">Latest modeled lifecycle markers</h2></div><span>Each marker links back to its strategy instance</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Recorded</th><th>Instance</th><th>Marker</th><th>Token</th><th>Reference market cap</th></tr></thead><tbody id="research-events"><tr><td colspan="5" class="empty">Loading research events…</td></tr></tbody></table></div>
+    </section>
+  </main>
+  <footer>PumpWizard.fun · public market research · <a href="/legal">Legal &amp; methodology</a></footer>
+  <script src="/nav.js"></script><script src="/research.js"></script>
+</body>
+</html>

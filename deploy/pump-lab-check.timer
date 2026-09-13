@@ -1,0 +1,10 @@
+[Unit]
+Description=Check PumpWizard readiness and backup state every two minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

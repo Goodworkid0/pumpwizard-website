@@ -1,0 +1,9 @@
+{
+  "summary_provider": "openai",
+  "summary_model": "gpt-4.1-mini",
+  "summary_refresh_seconds": 300,
+  "summary_daily_request_limit": 96,
+  "summary_daily_budget_usd": 0.25,
+  "summary_input_usd_per_million": 0.40,
+  "summary_output_usd_per_million": 1.60
+}

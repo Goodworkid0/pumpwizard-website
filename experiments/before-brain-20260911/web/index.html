@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d14"><title>Pump Paper · Portfolio</title>
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<svg class="icon-library" aria-hidden="true"><defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2 12h5l3-8 4 16 3-8h5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 3v6m0 4v8M12 3v11m0 4v3M19 3v3m0 4v11M2 9h6m1 9h6m1-12h6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M19 10a7 7 0 0 0-12-5M5 14a7 7 0 0 0 12 5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6L12 2Z"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 8V5H5a2 2 0 0 0 0 4h16v11H5a2 2 0 0 1-2-2V7"/><path d="M21 12h-6v5h6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</defs></svg>
+<aside class="sidebar">
+  <a class="brand" href="#overview" aria-label="Pump Paper home"><span class="brand-mark">p</span><span>pump<span class="brand-light">paper</span><small>PORTFOLIO WORKSPACE</small></span></a>
+  <div class="workspace"><span class="workspace-avatar">P</span><div>My paper portfolio<small>Virtual balance · USD</small></div></div>
+  <div class="nav-caption">WORKSPACE</div>
+  <nav aria-label="Main navigation">
+    <a class="nav-link selected" href="#overview"><svg><use href="#i-grid"/></svg>Overview</a>
+    <a class="nav-link" href="#positions"><svg><use href="#i-wallet"/></svg>Open positions<span id="nav-open" class="nav-count">0</span></a>
+    <a class="nav-link" href="#trades"><svg><use href="#i-pulse"/></svg>Trade history</a>
+    <a class="nav-link" href="#watchlist"><svg><use href="#i-eye"/></svg>Market watch</a>
+    <a class="nav-link" href="#strategy"><svg><use href="#i-sliders"/></svg>Strategy</a>
+  </nav>
+  <div class="sidebar-bottom"><div class="paper-emblem"><span class="small-dot"></span> PAPER MODE</div><p>Real market observations.<br>Every trade is simulated.</p><div class="user-chip"><span>PP</span><div>Research workspace<small>Local portfolio</small></div></div></div>
+</aside>
+<div class="workspace-main">
+  <header class="topbar"><div class="breadcrumbs">Workspace <span>/</span> <b>Portfolio</b></div><div class="topbar-right"><span class="connection" id="connection"><i></i><span id="feed-label">Connecting</span></span><span class="date" id="date-label"></span><button class="icon-button" id="refresh" aria-label="Refresh portfolio"><svg><use href="#i-refresh"/></svg></button></div></header>
+  <main>
+    <section id="overview" class="overview">
+      <div class="page-heading"><div><div class="eyebrow">YOUR PAPER TRADING DESK</div><h1>Portfolio overview<span class="heading-dot">.</span></h1><p id="page-subtitle">A clear view of every move.</p></div><div class="period-controls" role="tablist" aria-label="Performance period"><button role="tab" aria-selected="true" data-period="live" class="active"><i></i>Live</button><button role="tab" aria-selected="false" data-period="today">Today</button><button role="tab" aria-selected="false" data-period="7d">7 days</button><button role="tab" aria-selected="false" data-period="30d">30 days</button></div></div>
+      <div id="connection-alert" class="connection-alert" role="status" hidden></div>
+      <section class="brief-card" aria-label="Portfolio brief"><div class="brief-main"><div class="brief-heading"><span class="ai-icon"><svg><use href="#i-star"/></svg></span><span id="brief-label">Portfolio brief</span><span id="brief-provider" class="subtle-badge">Preparing</span><span id="brief-age" class="brief-age"></span></div><h2 id="brief-title">Getting your portfolio in focus.</h2><div id="brief-copy"><p>Reading the latest recorded positions, trades and portfolio movement…</p></div><div class="brief-footer"><span id="brief-status">Waiting for portfolio data</span><span id="brief-asof"></span></div></div><div class="brief-side"><div class="monitor-orbit" aria-hidden="true"><span></span><svg><use href="#i-pulse"/></svg></div><span class="engine-state" id="engine-state">Connecting</span><strong id="monitor-count">—</strong><span class="muted">recent candidates</span><div class="scan-line"><i></i><span id="scan-age">Waiting for the first update</span></div></div></section>
+      <section class="metrics" aria-label="Performance metrics">
+        <article class="metric"><div class="metric-label">Portfolio value <span>LIVE</span></div><strong id="equity">—</strong><div class="metric-meta"><span id="cash">— available</span><svg><use href="#i-wallet"/></svg></div></article>
+        <article class="metric"><div class="metric-label">Net P&amp;L <span id="pnl-period">LIVE</span></div><strong id="pnl">—</strong><div class="metric-meta"><span id="pnl-return">—</span><span id="pnl-baseline">From recorded history</span></div></article>
+        <article class="metric"><div class="metric-label">Win rate <span>CLOSED TRADES</span></div><strong id="win-rate">—</strong><div class="metric-meta"><span><b id="win-count" class="positive">0 wins</b><span class="separator">/</span><b id="loss-count" class="negative">0 losses</b></span></div></article>
+        <article class="metric"><div class="metric-label">Trading activity <span id="trade-period">LIVE</span></div><strong id="activity-count">—<small> fills</small></strong><div class="metric-meta"><span id="fill-counts">0 buys · 0 sells</span><span id="fee-total">— fees</span></div><div id="purchase-pace" class="metric-pace">Waiting for entry data</div></article>
+      </section>
+      <div class="analytics-grid"><section class="panel chart-panel"><div class="section-heading"><div><h2>Performance</h2><p id="chart-description">Portfolio value over recorded time</p></div><div class="chart-switch" role="group" aria-label="Chart value"><button class="active" data-chart="equity">Equity</button><button data-chart="pnl">P&amp;L</button></div></div><div class="chart"><canvas id="equity-chart" aria-label="Recorded portfolio performance"></canvas><div id="chart-tooltip" hidden></div></div><div class="chart-foot"><span><i class="legend-dot"></i><span id="chart-legend">Virtual portfolio value</span></span><span id="history-coverage">Loading history</span></div></section>
+        <section class="panel results-panel"><div class="section-heading"><h2>Trading results</h2><span class="subtle-badge" id="results-period">Live</span></div><div class="win-donut"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="donut-track" cx="60" cy="60" r="48"/><circle id="donut-loss" class="donut-loss" stroke-dasharray="0 302" cx="60" cy="60" r="48"/><circle id="donut-win" class="donut-win" stroke-dasharray="0 302" cx="60" cy="60" r="48"/></svg><div><strong id="closed-count">0</strong><span>closed trades</span></div></div><div class="outcome-legend"><span><i class="legend-dot"></i>Winners <b id="donut-wins">0</b></span><span><i class="legend-dot pink"></i>Losers <b id="donut-losses">0</b></span></div><dl class="result-details"><div><dt>Closed-trade P&amp;L</dt><dd id="closed-pnl">—</dd></div><div><dt>Maximum drawdown</dt><dd id="drawdown">—</dd></div><div><dt>Profit factor</dt><dd id="profit-factor">—</dd></div></dl></section></div>
+    </section>
+    <section id="positions" class="positions-section"><div class="section-heading"><div class="title-line"><h2>Open positions</h2><span id="position-count" class="count">0</span><span class="live-label"><i></i>LIVE</span></div><div class="section-note"><svg><use href="#i-clock"/></svg>Newest first <span id="pending-count"></span></div></div><div id="position-cards" class="position-grid"><div class="empty-state">Loading positions…</div></div></section>
+    <section class="leaders-grid" aria-label="Winners and losers"><article class="panel leader-panel"><div class="section-heading"><h2><span class="leader-arrow positive">↗</span>Top winners</h2><button class="text-button" data-outcome-link="winners">View all <span>↗</span></button></div><div id="winner-list"></div></article><article class="panel leader-panel"><div class="section-heading"><h2><span class="leader-arrow negative">↘</span>Top losers</h2><button class="text-button" data-outcome-link="losers">View all <span>↗</span></button></div><div id="loser-list"></div></article></section>
+    <div class="journal-grid"><section class="panel journal-panel" id="trades"><div class="section-heading"><div><h2>Trade history</h2><p id="journal-description">Closed positions in this period</p></div><a class="button secondary" href="/api/trades.csv" download="paper-trades.csv"><svg><use href="#i-download"/></svg>Export all</a></div><div class="journal-controls"><div class="outcome-tabs" role="group" aria-label="Trade outcome"><button class="active" data-outcome="all">All trades</button><button data-outcome="winners">Winners</button><button data-outcome="losers">Losers</button></div><div class="journal-filters"><label class="search-box"><svg><use href="#i-search"/></svg><input id="trade-search" type="search" placeholder="Search token" aria-label="Search trade history"></label><select id="trade-sort" aria-label="Sort trade history"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="best">Highest P&amp;L</option><option value="worst">Lowest P&amp;L</option></select></div></div><div class="table-scroll"><table><thead><tr><th>Token</th><th>Entry / exit price</th><th>Net P&amp;L</th><th>Return</th><th>Closed</th><th></th></tr></thead><tbody id="trade-body"></tbody></table></div><div class="pagination"><span id="page-description">No closed trades yet</span><div><button id="prev-page" aria-label="Previous page">←</button><span id="page-number">1 / 1</span><button id="next-page" aria-label="Next page">→</button></div></div></section>
+      <section class="panel activity-panel" id="activity"><div class="section-heading"><h2>Recent activity</h2><span class="activity-pulse" id="activity-pulse"></span></div><p class="panel-intro">Actual events from the paper ledger</p><div id="activity-feed" class="activity-feed"></div></section></div>
+    <details class="panel watch-panel" id="watchlist"><summary><div class="title-line"><svg><use href="#i-eye"/></svg><h2>Market watch</h2><span id="watch-count" class="count">0</span></div><span>Explore candidates <svg><use href="#i-chevron"/></svg></span></summary><p class="panel-intro">Recently observed candidates and their latest recorded decision.</p><div class="table-scroll"><table><thead><tr><th>Token</th><th>Market cap</th><th>Real reserves</th><th id="long-window-heading">Momentum</th><th>Decision</th></tr></thead><tbody id="candidate-body"></tbody></table></div></details>
+    <details class="panel strategy-panel" id="strategy"><summary><div class="title-line"><svg><use href="#i-sliders"/></svg><h2>Experiment settings</h2></div><span>View rules <svg><use href="#i-chevron"/></svg></span></summary><div class="strategy-grid"><dl id="strategy-rules"></dl><dl id="execution-rules"></dl></div><p class="panel-intro">All positions use virtual money. Net P&amp;L is the change in modeled portfolio equity; closed-trade P&amp;L includes whole trades closed during the selected period. Missing exit quotes remain open and are conservatively marked at $0. AI service usage is separate from the paper ledger.</p><p id="ai-usage" class="panel-intro"></p></details>
+    <footer><span><span class="small-dot"></span> PAPER TRADING · Real data, simulated execution</span><span id="footer-range">Europe/Belgrade · Available history only</span></footer>
+  </main>
+</div>
+<dialog id="trade-dialog"><div class="dialog-heading"><div id="detail-token"></div><button class="icon-button" id="close-dialog" aria-label="Close trade details"><svg><use href="#i-close"/></svg></button></div><div id="detail-pnl"></div><dl id="detail-fields"></dl><p>Recorded paper fill prices include modeled costs. No actual transaction was submitted.</p></dialog>
+<div id="toast" role="status" hidden></div>
+</body>
+</html>

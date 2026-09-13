@@ -1,0 +1,162 @@
+{
+  "schema": "pumpwizard.capacity-benchmark/v1",
+  "python": "3.11.2",
+  "sqlite": "3.40.1",
+  "host": "Linux",
+  "cpu_count": 16,
+  "scenarios": [
+    {
+      "instances": 10,
+      "steps": 15,
+      "coins_per_cycle": 4,
+      "closed_positions": 15,
+      "initialize_seconds": 0.406,
+      "cycle": {
+        "p50_ms": 35.838,
+        "p95_ms": 38.373,
+        "p99_ms": 38.373,
+        "samples": 15
+      },
+      "shared_features": {
+        "p50_ms": 5.231,
+        "p95_ms": 5.729,
+        "p99_ms": 5.729,
+        "samples": 15
+      },
+      "publication": {
+        "p50_ms": 25.654,
+        "p95_ms": 27.898,
+        "p99_ms": 27.898,
+        "samples": 4
+      },
+      "concurrent_reads": {
+        "p50_ms": 0.492,
+        "p95_ms": 2.362,
+        "p99_ms": 2.714,
+        "samples": 112
+      },
+      "read_errors": 0,
+      "restart_seconds": 0.006,
+      "representative_backup_restore_seconds": 0.007,
+      "working_set_bytes_before": 1674632,
+      "working_set_bytes_after": 5386752,
+      "working_set_growth_bytes": 3712120,
+      "process_peak_rss_kib": 28800,
+      "gates": {
+        "cycle_p95_under_30s": true,
+        "publication_max_under_30s": true,
+        "no_read_errors": true
+      },
+      "limitations": [
+        "Synthetic short histories and synthetic indexed quotes; not production capacity certification.",
+        "Read timings exclude HTTP/TLS/proxy; no provider, memory ingestion or Telegram transfer load.",
+        "Copies of ten signal families are not independent strategies or independent trade evidence.",
+        "Working-set growth includes SQLite/WAL allocation, not a daily storage forecast.",
+        "RSS is the process high-water mark, including preceding scenarios.",
+        "Recovery timing covers one ledger, not a complete off-site/application restore."
+      ]
+    },
+    {
+      "instances": 100,
+      "steps": 15,
+      "coins_per_cycle": 4,
+      "closed_positions": 150,
+      "initialize_seconds": 4.065,
+      "cycle": {
+        "p50_ms": 306.493,
+        "p95_ms": 330.814,
+        "p99_ms": 330.814,
+        "samples": 15
+      },
+      "shared_features": {
+        "p50_ms": 7.21,
+        "p95_ms": 8.054,
+        "p99_ms": 8.054,
+        "samples": 15
+      },
+      "publication": {
+        "p50_ms": 235.091,
+        "p95_ms": 255.0,
+        "p99_ms": 255.0,
+        "samples": 4
+      },
+      "concurrent_reads": {
+        "p50_ms": 0.927,
+        "p95_ms": 3.906,
+        "p99_ms": 38.794,
+        "samples": 112
+      },
+      "read_errors": 0,
+      "restart_seconds": 0.058,
+      "representative_backup_restore_seconds": 0.01,
+      "working_set_bytes_before": 13894472,
+      "working_set_bytes_after": 48012192,
+      "working_set_growth_bytes": 34117720,
+      "process_peak_rss_kib": 54332,
+      "gates": {
+        "cycle_p95_under_30s": true,
+        "publication_max_under_30s": true,
+        "no_read_errors": true
+      },
+      "limitations": [
+        "Synthetic short histories and synthetic indexed quotes; not production capacity certification.",
+        "Read timings exclude HTTP/TLS/proxy; no provider, memory ingestion or Telegram transfer load.",
+        "Copies of ten signal families are not independent strategies or independent trade evidence.",
+        "Working-set growth includes SQLite/WAL allocation, not a daily storage forecast.",
+        "RSS is the process high-water mark, including preceding scenarios.",
+        "Recovery timing covers one ledger, not a complete off-site/application restore."
+      ]
+    },
+    {
+      "instances": 1000,
+      "steps": 15,
+      "coins_per_cycle": 4,
+      "closed_positions": 1500,
+      "initialize_seconds": 42.853,
+      "cycle": {
+        "p50_ms": 3119.98,
+        "p95_ms": 4056.578,
+        "p99_ms": 4056.578,
+        "samples": 15
+      },
+      "shared_features": {
+        "p50_ms": 23.985,
+        "p95_ms": 31.949,
+        "p99_ms": 31.949,
+        "samples": 15
+      },
+      "publication": {
+        "p50_ms": 2597.276,
+        "p95_ms": 2863.659,
+        "p99_ms": 2863.659,
+        "samples": 4
+      },
+      "concurrent_reads": {
+        "p50_ms": 4.952,
+        "p95_ms": 17.337,
+        "p99_ms": 21.932,
+        "samples": 112
+      },
+      "read_errors": 0,
+      "restart_seconds": 0.681,
+      "representative_backup_restore_seconds": 0.016,
+      "working_set_bytes_before": 136092872,
+      "working_set_bytes_after": 474266592,
+      "working_set_growth_bytes": 338173720,
+      "process_peak_rss_kib": 285668,
+      "gates": {
+        "cycle_p95_under_30s": true,
+        "publication_max_under_30s": true,
+        "no_read_errors": true
+      },
+      "limitations": [
+        "Synthetic short histories and synthetic indexed quotes; not production capacity certification.",
+        "Read timings exclude HTTP/TLS/proxy; no provider, memory ingestion or Telegram transfer load.",
+        "Copies of ten signal families are not independent strategies or independent trade evidence.",
+        "Working-set growth includes SQLite/WAL allocation, not a daily storage forecast.",
+        "RSS is the process high-water mark, including preceding scenarios.",
+        "Recovery timing covers one ledger, not a complete off-site/application restore."
+      ]
+    }
+  ]
+}

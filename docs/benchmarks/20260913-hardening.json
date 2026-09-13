@@ -1,0 +1,18 @@
+{
+  "scope": "Rehearsal and production promotion evidence; not a capacity SLA",
+  "unit_tests": {"passed": 258, "seconds": 39.488},
+  "postgres_real_replay": {"instance": "t2-persistent-combined", "inputs": 14835, "seconds": 64.84, "state_and_four_table_proofs_match": true},
+  "postgres_synthetic": {"runner_types": 6, "sqlite_shadow_match": true, "independent_pg_dump_restore": true, "authoritative_sqlite_export_restore": true},
+  "source_backup_reconciliation": {"stored_instances_including_retired": 251, "closed_positions": 7973, "open_positions": 879, "shared_input_coverage": true},
+  "staging_soak": {"seconds": 600, "checks": 120, "failures": 0, "p95_ms": 29.89},
+  "browser_checks": ["public read workflows", "six-page layout", "replay download byte ranges and mobile layout"],
+  "compressed_summary": {"approximate_original_bytes": 1208322, "compressed_bytes": 144845, "slow_connection_seconds": 3.341},
+  "telegram_parallel_synthetic": {"source_bytes": 16777216, "seconds": 16.6, "independent_session": true, "upload_readback_and_restore": true},
+  "production_restore": {"status": "verified", "telegram_parts": 160, "reconciled_stored_instances": 251, "destination": "production-restore-20260913T191951Z"},
+  "production_deployment": {"phase": "live", "backend": "sqlite", "image": "sha256:909f0faea7082a6ac10f81e3570063c378220cd5528fe8cc12f8e195be1a24d6", "stored_instance_histories_preserved": 251, "public_data_read_only": true, "first_attempt": "Rolled back safely after Compose tmpfs parsing error; corrected retry passed", "previous_container_retained": true},
+  "production_browser_checks": {"public_read_workflows": "passed", "six_page_layout": "passed", "replay_downloads": "passed"},
+  "production_soak": {"seconds": 300, "interval_seconds": 5, "failures": 0, "p95_ms": 127.89, "scope": "Low-rate live HTTPS health/catalog checks; not a capacity test"},
+  "approved_local_retention": {"removed_bytes": 66414137752, "telegram_deletions": 0, "latest_verified_recovery_copy_retained": true},
+  "remaining_capacity_blocker": {"measured_at": 1789335091.1708028, "source_bytes": 52419866842, "free_bytes": 111061299200, "required_free_bytes": 167356674140, "shortfall_bytes": 56295374940, "monitor_check": "next_backup_capacity", "reserve_not_lowered": true},
+  "postgres_production_enabled": false
+}

@@ -1,0 +1,13 @@
+{
+  "version": "matched-forward-trial-v3",
+  "trial_id": "t2",
+  "description": "Capacity-bounded matched V3 pilot: four representative families test one extra signal confirmation and earlier break-even protection. They are not selected by prior P&L and do not alter V1/V2 ledgers.",
+  "parents": [
+    {"group": "breakout", "id": "breakout-continuation"},
+    {"group": "persistent", "id": "r1-persistent-b3-300s-7d"},
+    {"group": "multi-window", "id": "r1-multi-window-b3-300s-7d"},
+    {"group": "liquidity", "id": "r1-liquidity-b3-300s-7d"}
+  ],
+  "confirmation_delay_seconds": 60,
+  "break_even_activation_return": 0.10
+}

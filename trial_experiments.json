@@ -1,0 +1,23 @@
+{
+  "version": "matched-forward-trial-v1",
+  "trial_id": "t1",
+  "description": "Refreshed V2 signal-family pilot, not selected by historical P&L. Fresh concurrent controls and independent $500 balances; ownership observations are telemetry only and never block simulated entries or exits.",
+  "parents": [
+    {"group": "momentum", "id": "early-frequency"},
+    {"group": "breakout", "id": "breakout-continuation"},
+    {"group": "pullback", "id": "pullback-reclaim"},
+    {"group": "slow-burn", "id": "slow-burn-survivor"},
+    {"group": "persistent", "id": "r1-persistent-b3-300s-7d"},
+    {"group": "higher-low", "id": "r1-higher-low-b3-300s-7d"},
+    {"group": "multi-window", "id": "r1-multi-window-b3-300s-7d"},
+    {"group": "squeeze", "id": "r1-squeeze-b3-300s-7d"},
+    {"group": "retest", "id": "r1-retest-b3-300s-7d"},
+    {"group": "post-grad", "id": "r1-post-grad-b3-300s-7d"},
+    {"group": "liquidity", "id": "r1-liquidity-b3-300s-7d"},
+    {"group": "relative", "id": "r1-relative-b3-300s-7d"},
+    {"group": "second-wave", "id": "r1-second-wave-b3-300s-7d"},
+    {"group": "recovery", "id": "r1-recovery-b3-300s-7d"}
+  ],
+  "profit_activation_return": 0.20,
+  "profit_trailing_drawdown": 0.10
+}

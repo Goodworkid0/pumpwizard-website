@@ -1,0 +1,15 @@
+**
+!.dockerignore
+!Dockerfile
+!requirements-runtime.txt
+!scripts/
+!scripts/**
+!paper_trader.py
+!*.json
+!paper/
+!paper/**
+!web/
+!web/**
+!exports/
+!exports/ladder-research-20260911/
+!exports/ladder-research-20260911/analysis.json

@@ -1,0 +1,6 @@
+{
+  "base_url": "https://your-private-ots.example.com",
+  "session_file": "/absolute/private/path/ots-session.json",
+  "alert_credentials_file": null,
+  "channel_auto_delete_confirmed_off": false
+}
