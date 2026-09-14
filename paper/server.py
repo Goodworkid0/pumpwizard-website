@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 
 from .public_read import PublicReadService, ReadError
+from .raydium_cpmm_public_read import RaydiumCPMMPublicRead
 from .package_registry import Packages, byte_range
 
 
@@ -26,6 +27,7 @@ def accepts_gzip(header):
 def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
     root = Path(__file__).parent.parent / 'web'
     public = PublicReadService(brain) if brain and brain.ladder_enabled else None
+    raydium_public = RaydiumCPMMPublicRead(root.parent)
     packages = Packages((brain.root if brain else root.parent)/'data/public-packages')
     package_slots = threading.BoundedSemaphore(2)
 
@@ -79,21 +81,31 @@ def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
                 self.send_header('Cache-Control', 'no-store')
                 self.end_headers()
                 return
-            if path.startswith('/api/public') and public:
+            if path.startswith('/api/public') and (public or raydium_public):
                 try:
                     query = parse_qs(urlsplit(self.path).query)
+                    market_values = query.get('market', ['pumpfun'])
+                    if len(market_values) != 1 or market_values[0] not in ('pumpfun', 'raydium-cpmm'):
+                        raise ReadError(400, 'Invalid public market')
+                    selected_public = raydium_public if market_values[0] == 'raydium-cpmm' else public
+                    if selected_public is None:
+                        raise ReadError(503, 'Public market publication is unavailable')
                     if path == '/api/public/packages':
+                        if selected_public is raydium_public:
+                            raise ReadError(404, 'Raydium packages are not published')
                         body, mime = packages.response(query), 'application/json'
                     elif path.startswith('/api/public/packages/') and path.endswith('.zip'):
                         self.send_package(path[len('/api/public/packages/'):-4])
                         return
                     elif path in ('/api/public/history.csv', '/api/public/research.csv'):
-                        body, mime = public.export(path), 'text/csv; charset=utf-8'
+                        body, mime = selected_public.export(path), 'text/csv; charset=utf-8'
                     elif path.startswith('/api/public/strategies/') and path.endswith('/trades'):
-                        body = public.history(path[len('/api/public/strategies/'):-len('/trades')], query)
+                        if selected_public is raydium_public:
+                            raise ReadError(404, 'Raydium strategy history is not published')
+                        body = selected_public.history(path[len('/api/public/strategies/'):-len('/trades')], query)
                         mime = 'application/json'
                     else:
-                        body, mime = public.response(path, query), 'application/json'
+                        body, mime = selected_public.response(path, query), 'application/json'
                 except ReadError as exc:
                     body = json.dumps({'error': str(exc)}).encode()
                     self.send_response(exc.status)

@@ -62,7 +62,11 @@ window.PumpWizardPublic = (() => {
   // Snapshot health remains part of request handling; it is not public-facing copy.
   function show() {}
   async function request(path, options = {}) {
-    const key = new URL(path, location.origin).pathname;
+    const endpoint = new URL(path, location.origin);
+    // A market request is explicit all the way to the public reader.  In
+    // particular, an unavailable Raydium reader must never display Pump.fun.
+    if (window.PumpWizardMarket?.id === 'raydium-cpmm') endpoint.searchParams.set('market', 'raydium-cpmm');
+    const key = endpoint.pathname;
     if (window.PumpWizardMarket?.localDemo) {
       const demo = window.PumpWizardLocalDemo?.[window.PumpWizardMarket.id];
       const payload = key === '/api/public/live-feed' ? demo?.live : demo?.summary;
@@ -73,7 +77,7 @@ window.PumpWizardPublic = (() => {
       location.pathname === '/research' ? '/api/public/research' : '/api/public/live-feed';
     const track = key === primary || key === '/api/public/live-feed';
     try {
-      const response = await fetch(path, {cache:'no-store', signal:AbortSignal.timeout(15000), ...options});
+      const response = await fetch(endpoint.pathname + endpoint.search, {cache:'no-store', signal:AbortSignal.timeout(15000), ...options});
       if (!response.ok) throw Error('Public data unavailable');
       const data = await response.json();
       if (track && data._snapshot) states.set(key, data._snapshot);
