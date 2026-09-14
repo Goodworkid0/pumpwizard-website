@@ -71,7 +71,8 @@ def main():
             return
         for path in ('/','/engine','/research','/downloads','/socials','/affiliate','/contact','/legal',
                      '/assets/brand/option-b-orbital-spark-logo-512.png','/assets/pump-logomark.svg',
-                     '/assets/raydium-logomark.svg','/api/public/health','/api/public/catalog','/page-shell.css'):
+                     '/assets/raydium-logomark.svg','/api/public/health','/api/public/catalog',
+                     '/api/public/history.jsonl.gz','/api/public/research.jsonl.gz','/page-shell.css'):
             check('https://pumpwizard.fun'+path,'pumpwizard.fun')
         for path in ('/data/service.env','/.git/config','/acp','/api/state','/api/public'):
             check('https://pumpwizard.fun'+path,'pumpwizard.fun',404)
