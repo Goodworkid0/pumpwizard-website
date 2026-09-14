@@ -36,7 +36,7 @@ with sync_playwright() as playwright:
     expect(page.locator('.portfolio')).to_contain_text('Observed paper ledger')
     expect(page.locator('#positions')).to_contain_text('No observed-ledger positions')
     assert not any('/api/public/' in request for request in requests), requests
-    assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() == 2
+    assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() == 6
     assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--mint').trim()") == '#14f195'
     page.goto(URL + '/engine?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-panel')).to_be_visible()
@@ -50,6 +50,7 @@ with sync_playwright() as playwright:
     page.goto(URL + '/research?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-control')).to_be_visible()
     expect(page.locator('.market-toggle-option.raydium-cpmm')).to_have_attribute('aria-pressed', 'true')
+    expect(page.locator('.site-nav a').filter(has_text='Lab Research')).to_have_attribute('href', '/research?market=raydium-cpmm')
     assert page.locator('.market-context-panel').count() == 0
     with page.expect_navigation(wait_until='domcontentloaded'):
         page.locator('.market-toggle-option.pumpfun').click()

@@ -43,8 +43,7 @@
   const market = definitions[id];
   const href = path => {
     const url = new URL(path, location.origin);
-    if (url.pathname === '/' || url.pathname === '/engine') url.searchParams.set('market', selectedId);
-    else url.searchParams.delete('market');
+    url.searchParams.set('market', selectedId);
     return url.pathname + url.search + url.hash;
   };
   window.PumpWizardMarket = {id, label: market.label, state: market.state, assurance: market.assurance,
@@ -287,7 +286,7 @@ window.PumpWizardHandoff = {
     updated.dateTime=new Date(item.at*1000).toISOString();
     updated.title=new Date(item.at*1000).toLocaleString();
     const eventKey=[item.action,item.mint,item.at].join(':');
-    if(!muted&&((hydrated&&eventKey!==lastEventKey)||(!hydrated&&Date.now()/1000-item.at<60)))toastFor(item);
+    if(!muted&&hydrated&&eventKey!==lastEventKey)toastFor(item);
     lastEventKey=eventKey;
     hydrated=true;
   };
