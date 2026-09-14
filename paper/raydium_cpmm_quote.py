@@ -53,14 +53,16 @@ def _reconciled(report, archive, pool_id, locator):
     for comparison in report['comparisons']:
         if not isinstance(comparison, dict) or comparison.get('pool_id') != pool_id:
             continue
-        after = comparison.get('after')
-        if not isinstance(after, dict) or (after.get('slot'), after.get('write_version')) != locator:
-            continue
         event = archive.get_event(comparison.get('event_id')) if isinstance(comparison.get('event_id'), str) else None
         state = archive.get_pool_state(pool_id, *locator)
-        if (event and state and event.get('content_sha256') == comparison.get('event_sha256')
-                and state.get('content_sha256') == comparison.get('after_state_sha256')):
-            return
+        if not event or not state or event.get('content_sha256') != comparison.get('event_sha256'):
+            continue
+        for role, state_hash in (('before', comparison.get('before_state_sha256')),
+                                 ('after', comparison.get('after_state_sha256'))):
+            anchor = comparison.get(role)
+            if (isinstance(anchor, dict) and (anchor.get('slot'), anchor.get('write_version')) == locator
+                    and state.get('content_sha256') == state_hash):
+                return {'event_id': event['id'], 'state_role': role}
     raise RaydiumShadowQuoteError('State is not anchored by a current reconciliation proof')
 
 
@@ -92,7 +94,7 @@ def quote(recording, archive):
     if not pool or not state or state.get('parser') != VAULT_PARSER:
         raise RaydiumShadowQuoteError('Unknown or unsupported captured pool state')
     proof = _valid_report(recording.get('reconciliation_report'))
-    _reconciled(proof, archive, pool_id, locator)
+    anchor = _reconciled(proof, archive, pool_id, locator)
     account = state.get('state', {}).get('pool_account')
     if not isinstance(account, dict) or account.get('swap_enabled') is not True:
         raise RaydiumShadowQuoteError('Pool state is not quote-eligible')
@@ -154,6 +156,7 @@ def quote(recording, archive):
                        'creator': creator_fee, 'creator_on_input': creator_on_input},
               'request_sha256': hashlib.sha256(raw.encode()).hexdigest(),
               'reconciliation_sha256': proof['sha256'],
+              'reconciliation_anchor': anchor,
               'observed_at': state['observed_at'],
               'limitations': ['historical state only', 'classic SPL Token only', 'not executable', 'not a simulated fill']}
     result['sha256'] = hashlib.sha256(canonical(result).encode()).hexdigest()

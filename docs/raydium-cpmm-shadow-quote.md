@@ -6,11 +6,14 @@ it does not fetch RPC data, submit a transaction, alter the market archive,
 create a signal, or enter the current simulator and website.
 
 The request must identify an archived full pool state, include a self-consistent
-reconciliation proof anchoring that state to a parsed swap event, and contain one
-same-slot CPMM config capture. The adapter verifies those hashes against the
-current append-only archive, uses fee-free reserves and the documented constant
-product/fee rounding rules, and only supports classic SPL Token vaults. It rejects
-Token-2022 mints because their epoch-specific transfer fees are not yet captured.
+reconciliation proof anchoring that state before or after a parsed swap event,
+and contain one same-slot CPMM config capture. The adapter records which anchor
+it used. Historical validation requires the *before* state; an after-state quote
+is only a separately proven historical calculation. The adapter verifies those
+hashes against the current append-only archive, uses fee-free reserves and the
+documented constant product/fee rounding rules, and only supports classic SPL
+Token vaults. It rejects Token-2022 mints because their epoch-specific transfer
+fees are not yet captured.
 
 ```bash
 python3 scripts/quote_raydium_cpmm.py \
