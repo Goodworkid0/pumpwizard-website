@@ -269,6 +269,24 @@ class MarketArchive:
                 raise ArchiveError('Unknown pool for market event')
             return self._append('market_events', (('id', data['id']),), data, (('pool_id', data['pool_id']),))
 
+    def add_events(self, records):
+        """Atomically append a batch of transaction-indexed market events."""
+        normalized = [normalize_event(record) for record in records]
+        keyed = {record['id']: record for record in normalized}
+        if len(keyed) != len(normalized):
+            for record in normalized:
+                if keyed[record['id']] != record:
+                    raise ArchiveError('Conflicting market events in batch')
+        if self.view_only:
+            raise ArchiveError('Archive is read-only')
+        with self.lock, self.db:
+            for record in keyed.values():
+                if not self.db.execute('SELECT 1 FROM pools WHERE id=?', (record['pool_id'],)).fetchone():
+                    raise ArchiveError('Unknown pool for market event')
+            return sum(self._append('market_events', (('id', record['id']),), record,
+                                    (('pool_id', record['pool_id']),))
+                       for record in keyed.values())
+
     def add_pool_state(self, record):
         data = normalize_pool_state(record)
         with self.lock, self.db:
