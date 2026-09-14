@@ -115,9 +115,15 @@ def ingest_catalog(page, archive, received_at=None, source_url=None):
     """
     if not isinstance(archive, MarketArchive):
         raise TypeError('archive must be a MarketArchive')
-    if not isinstance(page, dict) or not isinstance(page.get('data'), list):
+    rows = page.get('data') if isinstance(page, dict) else None
+    # Raydium's current API envelope returns {success, data: {data: [...]}};
+    # older saved recordings used the inner page directly.  Preserve either raw
+    # shape in the proof report, but never infer an item list from another field.
+    if isinstance(rows, dict):
+        rows = rows.get('data')
+    if not isinstance(rows, list):
         raise RaydiumCatalogError('Catalog page must contain a data list')
-    if len(page['data']) > 100:
+    if len(rows) > 100:
         raise RaydiumCatalogError('Catalog page exceeds the configured bound')
     # Preserve only evidence we can serialize canonically.  Validate this before
     # touching the archive so a malformed recorded input cannot cause a partial
@@ -130,7 +136,7 @@ def ingest_catalog(page, archive, received_at=None, source_url=None):
         received_at = time.time()
     _finite(received_at, 'received_at', minimum=1)
     tokens, pools, accepted, rejected = [], [], [], []
-    for index, item in enumerate(page['data']):
+    for index, item in enumerate(rows):
         try:
             mint_a, mint_b, pool = _pool(item)
             tokens.extend((mint_a, mint_b))

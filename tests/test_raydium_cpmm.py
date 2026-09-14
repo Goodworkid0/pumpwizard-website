@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from paper.market_archive import MarketArchive
+from paper.market_archive import MarketArchive, pool_id
 from paper.raydium_cpmm import CPMM_PROGRAM_ID, RaydiumCatalogError, catalog_url, ingest_catalog
 
 
@@ -55,6 +55,12 @@ class RaydiumCpmmTests(unittest.TestCase):
         self.assertEqual(repeated['appended'], {'tokens': 0, 'pools': 0})
         self.assertEqual(self.archive.verify()['tables']['pool_states']['rows'], 0)
         self.assertEqual(self.archive.verify()['tables']['market_events']['rows'], 0)
+
+    def test_accepts_current_api_envelope_without_changing_raw_proof(self):
+        page = {'id': 'recorded-response', 'success': True, 'data': {'data': [cpmm()]}}
+        report = ingest_catalog(page, self.archive, 1000, 'fixture://raydium')
+        self.assertEqual(report['accepted_pool_ids'], [pool_id(PROGRAM, POOL)])
+        self.assertEqual(report['raw'], page)
 
     def test_malformed_dynamic_metric_rejects_only_that_pool(self):
         bad = cpmm()
