@@ -11,6 +11,7 @@ with sync_playwright() as playwright:
     browser = playwright.chromium.launch(executable_path='/usr/bin/chromium', headless=True,
         args=['--no-sandbox', '--disable-dev-shm-usage'])
     page = browser.new_page(viewport={'width': 1440, 'height': 900})
+    page.add_init_script("localStorage.setItem('pumpwizard.welcome.last-shown', String(Date.now()))")
     requests, errors = [], []
     page.on('request', lambda request: requests.append(request.url))
     page.on('pageerror', lambda error: errors.append(str(error)))

@@ -11,6 +11,7 @@ with sync_playwright() as playwright:
     browser = playwright.chromium.launch(executable_path='/usr/bin/chromium', headless=True,
         args=['--no-sandbox', '--disable-dev-shm-usage'])
     page = browser.new_page(viewport={'width': 1440, 'height': 900})
+    page.add_init_script("localStorage.setItem('pumpwizard.welcome.last-shown', String(Date.now()))")
     page.goto(URL + '/?market=pumpfun&local_demo=1', wait_until='domcontentloaded')
     expect(page.locator('.local-demo-notice')).to_contain_text('Synthetic localhost UI preview')
     expect(page.locator('#wallet-equity')).to_have_text('$1,069.80')

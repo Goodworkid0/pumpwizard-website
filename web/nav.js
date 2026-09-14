@@ -464,3 +464,36 @@ window.PumpWizardHandoff = {
     footer.replaceChildren(identity, links);
   }
 })();
+
+(() => {
+  const storageKey = 'pumpwizard.welcome.last-shown';
+  const day = 24 * 60 * 60 * 1000;
+  let shownAt = 0;
+  try { shownAt = Number(localStorage.getItem(storageKey)) || 0; } catch {}
+  if (Date.now() - shownAt < day) return;
+
+  const dialog = document.createElement('aside');
+  dialog.className = 'lab-welcome';
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', 'lab-welcome-title');
+  dialog.innerHTML = '<div class="lab-welcome-card"><button class="lab-welcome-close" type="button" aria-label="Close welcome message">×</button>' +
+    '<p class="eyebrow">Welcome to PumpWizard Lab</p><h2 id="lab-welcome-title">Real Solana market inputs. Virtual strategy ledgers.</h2>' +
+    '<p class="lab-welcome-intro">PumpWizard Lab observes public Solana market data across supported markets and tests defined strategies against that stream. It is research infrastructure—not a trading service.</p>' +
+    '<div class="lab-welcome-grid"><section><b>1 · Isolated $500 per strategy</b><p>Each published live strategy starts with its own virtual $500 balance. Its entries, exits, marks, and P&amp;L stay in a separate paper ledger so results can be compared honestly.</p></section>' +
+    '<section><b>2 · Real data, no real orders</b><p>Strategies react to observed market conditions, but no visitor wallet connects and no order is signed or submitted. Published results are modeled simulation records.</p></section>' +
+    '<section><b>3 · Network-aware execution model</b><p>We model delayed fills, stale or missing quotes, fees, adverse execution, and failed-attempt stress. An unusable input is rejected rather than silently turned into a price.</p></section></div>' +
+    '<p class="lab-welcome-boundary">Market data can be incomplete or delayed. Simulated performance is not executable, predictive, or investment advice.</p>' +
+    '<div class="lab-welcome-actions"><button class="admin lab-welcome-confirm" type="button">Explore the lab</button><a href="/legal">Methodology &amp; limitations →</a></div></div>';
+  const close = () => {
+    try { localStorage.setItem(storageKey, String(Date.now())); } catch {}
+    dialog.remove(); document.removeEventListener('keydown', onKey);
+  };
+  const onKey = event => { if (event.key === 'Escape') close(); };
+  dialog.querySelector('.lab-welcome-close').addEventListener('click', close);
+  dialog.querySelector('.lab-welcome-confirm').addEventListener('click', close);
+  dialog.addEventListener('click', event => { if (event.target === dialog) close(); });
+  document.addEventListener('keydown', onKey);
+  document.body.append(dialog);
+  requestAnimationFrame(() => { dialog.classList.add('visible'); dialog.querySelector('.lab-welcome-confirm').focus(); });
+})();
