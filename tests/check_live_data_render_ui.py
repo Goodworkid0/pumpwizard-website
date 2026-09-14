@@ -18,6 +18,7 @@ with sync_playwright() as playwright:
     page.add_init_script("localStorage.setItem('pumpwizard.welcome.last-shown', String(Date.now()))")
     page.goto(URL + '/?market=pumpfun', wait_until='domcontentloaded')
     expect(page.locator('#wallet-equity')).not_to_have_text('—', timeout=30000)
+    expect(page.locator('#hero-tracking-label')).to_have_text('Days tracking Pump.fun market')
     expect(page.locator('#range-today')).to_have_attribute('aria-selected', 'true')
     expect(page.locator('#position-count')).not_to_have_text('0 open positions')
     assert page.locator('#allocations .allocation-link').count() > 0

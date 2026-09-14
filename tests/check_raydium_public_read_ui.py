@@ -11,6 +11,7 @@ with sync_playwright() as playwright:
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.goto(URL + '/?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('#wallet-equity')).to_have_text('500 USDC', timeout=30000)
+    expect(page.locator('#hero-tracking-label')).to_have_text('Days tracking Raydium market')
     expect(page.locator('#hero-capital')).to_have_text('500 USDC')
     expect(page.locator('#count')).to_contain_text('1 strategies')
     expect(page.locator('#strategies-list')).to_contain_text('NEAR / USDC observed trend')
