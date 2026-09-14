@@ -18,9 +18,16 @@ with sync_playwright() as playwright:
     page.add_init_script("localStorage.setItem('pumpwizard.welcome.last-shown', String(Date.now()))")
     page.goto(URL + '/?market=pumpfun', wait_until='domcontentloaded')
     expect(page.locator('#wallet-equity')).not_to_have_text('—', timeout=30000)
+    expect(page.locator('#range-today')).to_have_attribute('aria-selected', 'true')
     expect(page.locator('#position-count')).not_to_have_text('0 open positions')
     assert page.locator('#allocations .allocation-link').count() > 0
+    expect(page.locator('#allocations .allocation-link').first).to_contain_text('Today P&L')
     assert page.locator('#positions .position-row').count() > 0
+    page.locator('#range-all').click()
+    expect(page.locator('#allocations .allocation-link').first).to_contain_text('Today P&L')
+    page.goto(URL + '/engine?market=pumpfun', wait_until='domcontentloaded')
+    expect(page.locator('#strategy-sort')).to_have_value('pnl_24h_usd', timeout=30000)
+    expect(page.locator('#strategy-cards .lab-card').first).to_contain_text('Wallet / Today P&L')
     assert not errors, errors
     browser.close()
     print('Pump.fun Live Data populated-render check passed')

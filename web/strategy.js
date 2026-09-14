@@ -6,6 +6,7 @@ if (typeof window !== 'undefined' && window.PumpWizardMarket?.id === 'raydium-cp
   const signed = value => value == null ? '—' : (value >= 0 ? '+' : '−') + money(Math.abs(value));
   const when = value => value ? new Date(value * 1000).toLocaleString() : '—';
   const id = location.pathname.split('/').filter(Boolean).at(-1);
+  $('pnl').previousElementSibling.textContent = 'All-time P&L';
   const rules = (host, rows) => $(host).replaceChildren(...rows.map(([label, value]) => {
     const item = document.createElement('div'); item.innerHTML = '<dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd>'; return item;
   }));
@@ -46,6 +47,7 @@ const signedPct = n => n == null ? '—' : (n >= 0 ? '+' : '−') + (Math.abs(n)
 const when = t => t ? new Date(t * 1000).toLocaleString() : '—';
 const dateTime = t => t ? new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(t * 1000)) : '—';
 const duration = seconds => !Number.isFinite(seconds) || seconds < 0 ? '—' : seconds < 3600 ? Math.floor(seconds / 60) + 'm' : seconds < 86400 ? Math.floor(seconds / 3600) + 'h ' + Math.floor(seconds % 3600 / 60) + 'm' : Math.floor(seconds / 86400) + 'd ' + Math.floor(seconds % 86400 / 3600) + 'h';
+document.querySelector('#pnl')?.previousElementSibling && (document.querySelector('#pnl').previousElementSibling.textContent = 'All-time P&L');
 const capMove = (from,to) => from && to ? (to / from - 1) : null;
 const readable = value => String(value || '—').replaceAll('_',' ');
 const tokenUrl = mint => 'https://solscan.io/token/' + encodeURIComponent(mint || '');

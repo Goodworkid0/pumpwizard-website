@@ -34,6 +34,8 @@ for (const [value, label] of [['', 'All Instances'], ['original', 'Original stra
 }
 document.querySelector('.lab-toolbar').before(versionNav);
 if (observedMarket) versionNav.hidden = true;
+const sortControl = $('strategy-sort');
+if (!observedMarket && sortControl && !new URLSearchParams(location.search).has('sort')) sortControl.value = 'pnl_24h_usd';
 const pageSize = 24;
 let comparedKey = window.PumpWizardComparison.parseSelection(location.search).join(',');
 let catalogController = null, catalogDebounce = null;
@@ -106,10 +108,13 @@ async function fullHandoff(strategy) {
 }
 function card(strategy) {
   const r = strategy.report, c = r.config, node = document.createElement('article');
+  const today = $('strategy-sort').value.startsWith('pnl_24h');
+  const displayedPnl = today ? r.pnl_24h_usd : r.pnl_usd;
+  const pnlLabel = today ? 'Today P&L' : 'All-time P&L';
   const description = strategy.description || (strategy.id.startsWith('exit-study-twin') ? 'Core-frequency entries with a different target and trailing-exit policy.' : THEORY[c.entry_style]) || 'An independent forward-tested agent.';
   node.className = 'lab-card';
   const metrics = [
-    ['Wallet / P&L', money(r.equity_usd) + ' <i class="' + (r.pnl_usd > 0 ? 'up' : r.pnl_usd < 0 ? 'down' : '') + '">' + signed(r.pnl_usd) + '</i>'],
+    ['Wallet / ' + pnlLabel, money(r.equity_usd) + ' <i class="' + (displayedPnl > 0 ? 'up' : displayedPnl < 0 ? 'down' : '') + '">' + signed(displayedPnl) + '</i>'],
     ['Total trades / unique coins', (r.total_entries || 0) + ' / ' + (r.unique_coins || 0)],
     ['Closed performance', pct(r.closed_win_rate) + ' win rate · ' + r.closed_count + ' closed'],
     ['Observe / maximum hold', duration(c.observation_seconds) + ' / ' + duration(c.max_hold_seconds)]
