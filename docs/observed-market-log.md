@@ -26,3 +26,6 @@ The log creates no market archive rows, orders, paper fills, strategies, or
 public API/UI changes. Its only supported assurance is **observed simulation**;
 freshness, collection continuity, commitment, and source limitations must remain
 visible to any later simulation or public presentation.
+
+For a bounded capture command that allocates its sequence directly from this
+log, see [the observed monitor](raydium-cpmm-observed-monitor.md).
