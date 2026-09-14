@@ -314,8 +314,8 @@ window.PumpWizardHandoff = {
   control.className = 'market-context-control';
   control.setAttribute('aria-label', 'Select market');
   control.innerHTML = '<span class="market-toggle-label">Market</span><div class="market-toggle" role="group" aria-label="Select market">' +
-    '<button type="button" class="market-toggle-option pumpfun" data-market="pumpfun"><i class="market-logo" aria-hidden="true">p</i><span><b>Pump.fun</b><small>Live simulation</small></span></button>' +
-    '<button type="button" class="market-toggle-option raydium-cpmm" data-market="raydium-cpmm"><i class="market-logo" aria-hidden="true">R</i><span><b>Raydium</b><small>Observed simulation</small></span></button></div>';
+    '<button type="button" class="market-toggle-option pumpfun" data-market="pumpfun"><img class="market-logo" src="/assets/pump-logomark.svg" alt=""><span><b>Pump.fun</b><small>Live simulation</small></span></button>' +
+    '<button type="button" class="market-toggle-option raydium-cpmm" data-market="raydium-cpmm"><img class="market-logo" src="/assets/raydium-logomark.svg" alt=""><span><b>Raydium</b><small>Observed simulation</small></span></button></div>';
   for (const option of control.querySelectorAll('[data-market]')) {
     const selected = option.dataset.market === market.id;
     option.classList.toggle('selected', selected);

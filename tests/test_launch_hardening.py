@@ -120,7 +120,7 @@ class PublicBoundaryTests(unittest.TestCase):
 
     def test_public_pages_and_external_navigation_work(self):
         for path in ('/', '/engine', '/engine/test', '/research', '/downloads', '/downloads.css', '/affiliate', '/socials', '/contact', '/legal', '/contact.js',
-                     '/assets/brand/option-b-orbital-spark-logo-512.png'):
+                     '/assets/brand/option-b-orbital-spark-logo-512.png', '/assets/pump-logomark.svg', '/assets/raydium-logomark.svg'):
             status, headers, _ = self.request(path)
             self.assertEqual(status, 200, path)
             self.assertEqual(headers['X-Frame-Options'], 'DENY')
