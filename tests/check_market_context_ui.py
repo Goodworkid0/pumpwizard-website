@@ -15,7 +15,14 @@ with sync_playwright() as playwright:
     page.on('request', lambda request: requests.append(request.url))
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.goto(URL + '/?market=raydium-cpmm', wait_until='domcontentloaded')
+    expect(page.locator('.site-topbar')).to_be_visible()
+    expect(page.locator('.site-topbar .solana-mark i')).to_have_count(3)
+    expect(page.locator('.site-topbar .live-ticker')).to_be_visible()
+    expect(page.locator('.site-navigation-row')).to_be_visible()
     expect(page.locator('.market-context-control select')).to_have_value('raydium-cpmm')
+    expect(page.locator('.site-navigation-row .market-context-control')).to_be_visible()
+    assert page.locator('.site-nav a').filter(has_text='Legal').count() == 0
+    expect(page.locator('footer .footer-links a').filter(has_text='Legal & methodology')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_contain_text('Awaiting read model')
     expect(page.locator('.portfolio')).to_be_visible()
@@ -23,6 +30,7 @@ with sync_playwright() as playwright:
     expect(page.locator('#positions')).to_contain_text('No observed-ledger positions')
     assert not any('/api/public/' in request for request in requests), requests
     assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() >= 3
+    assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--mint').trim()") == '#14f195'
     page.goto(URL + '/engine?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-panel')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_contain_text('Raydium CPMM')

@@ -1,9 +1,42 @@
+/* The populated fixture is localhost-only and never reaches a public request. */
+(() => {
+  if (!['localhost', '127.0.0.1'].includes(location.hostname)) return;
+  const now = Math.floor(Date.now() / 1000), mint = char => char.repeat(44);
+  const config = {entry_cap_min:8000,entry_cap_max:50000,order_usd:25,observation_seconds:60,max_positions:4,
+    targets:[{market_cap_usd:75000},{market_cap_usd:125000},{market_cap_usd:200000}]};
+  const report = (equity,pnl,closed) => ({config,initial_usd:500,equity_usd:equity,pnl_usd:pnl,pnl_24h_usd:pnl*.4,
+    pnl_7d_usd:pnl*.7,pnl_30d_usd:pnl,closed_count:closed,closed_win_rate:.67,total_entries:closed+1,
+    open_position_count:1,pending_count:0,trade_counts:{today:2,all:closed+1},activity_counts:{today:3,all:closed+2}});
+  const summary = (market, quoteDemo) => {
+    const strategies = [{id:market+'-momentum',label:quoteDemo?'Observed CPMM momentum':'Momentum follow-through',report:report(548.2,48.2,3)},
+      {id:market+'-reclaim',label:quoteDemo?'Observed CPMM reclaim':'Breakout reclaim',report:report(521.6,21.6,2)}];
+    const open = {strategy_id:strategies[0].id,strategy_label:strategies[0].label,symbol:quoteDemo?'RAY-DEMO':'PUMP-DEMO',
+      mint:mint(quoteDemo?'R':'P'),entry_cap:quoteDemo?38000:42000,current_cap:quoteDemo?44600:55100,pnl_usd:quoteDemo?18.42:27.54,
+      entry_at:now-840,status:'open'};
+    const closed = {strategy_id:strategies[1].id,strategy_label:strategies[1].label,symbol:quoteDemo?'CPMM-TEST':'BONK-TEST',
+      mint:mint(quoteDemo?'C':'B'),entry_cap:quoteDemo?29000:18000,exit_cap:quoteDemo?35600:25200,pnl_usd:quoteDemo?12.76:18.21,
+      entry_at:now-7200,exit_at:now-2600,exit_reason:'paper target'};
+    const curve = [0,18,12,31,47,69.8].map((gain,index)=>({at:now-(5-index)*900,value:1000+gain}));
+    return {as_of:now,market_tracking_started_at:now-86400*18,service:{market},strategies,open_positions:[open],closed_positions:[closed],
+      candidates:[{strategy_id:strategies[0].id,strategy_label:strategies[0].label,symbol:quoteDemo?'RAY-POOL':'NEW-COIN',mint:mint('N'),market_cap_usd:quoteDemo?33000:27600,state:'Observed signal'}],
+      portfolio:{initial_usd:1000,equity_usd:1069.8,pnl_usd:69.8,today_pnl_usd:22.8,cash_usd:620,open_positions:1,
+        allocations:strategies.map((strategy,index)=>({id:strategy.id,label:strategy.label,initial_usd:500,equity_usd:index?521.6:548.2,pnl_usd:index?21.6:48.2,allocation_fraction:.5,activity_counts:{today:2,all:4}})),
+        equity_curve:curve,equity_curves:{today:curve,'7d':curve,'30d':curve,all:curve}},
+      community:{token_status:'Synthetic localhost preview',telegram_url:'',developer_url:''},
+      _snapshot:{source_as_of:now,generated_at:now,age_seconds:0,stale:false,local_demo:true}};
+  };
+  window.PumpWizardLocalDemo = {pumpfun:{summary:summary('Pump.fun synthetic localhost demo',false)},
+    'raydium-cpmm':{summary:summary('Raydium CPMM synthetic observed demo',true)}};
+})();
+
 (() => {
   const definitions = {
     pumpfun: {label: 'Pump.fun', state: 'Live simulation', assurance: 'Pump.fun market inputs'},
     'raydium-cpmm': {label: 'Raydium CPMM', state: 'Observed simulation', assurance: 'Standard-RPC observed snapshots'}
   };
   const requested = new URLSearchParams(location.search).get('market');
+  const localDemo = new URLSearchParams(location.search).get('local_demo') === '1' &&
+    (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
   const id = Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
   const market = definitions[id];
   const href = path => {
@@ -12,7 +45,7 @@
     return url.pathname + url.search + url.hash;
   };
   window.PumpWizardMarket = {id, label: market.label, state: market.state, assurance: market.assurance,
-    isPreview: id !== 'pumpfun', href};
+    isPreview: id !== 'pumpfun', localDemo, href};
   document.documentElement.dataset.market = id;
   if (id !== 'pumpfun') document.body.dataset.marketPreview = 'true';
   const stylesheet = document.createElement('link');
@@ -37,6 +70,11 @@ window.PumpWizardPublic = (() => {
   }
   async function request(path, options = {}) {
     const key = new URL(path, location.origin).pathname;
+    if (window.PumpWizardMarket?.localDemo) {
+      const demo = window.PumpWizardLocalDemo?.[window.PumpWizardMarket.id];
+      const payload = key === '/api/public/live-feed' ? demo?.live : demo?.summary;
+      if (payload) { states.delete(key); show(); return payload; }
+    }
     const primary = location.pathname === '/' ? '/api/public/summary' : location.pathname === '/engine' ? '/api/public/catalog' :
       location.pathname.startsWith('/engine/') ? '/api/public/strategies/' + location.pathname.split('/')[2] :
       location.pathname === '/research' ? '/api/public/research' : '/api/public/live-feed';
@@ -269,9 +307,10 @@ window.PumpWizardHandoff = {
   const nav = document.querySelector('.site-nav');
   if (!nav) return;
   const market = window.PumpWizardMarket;
+  const header = nav.closest('.site-header');
   const control = document.createElement('label');
   control.className = 'market-context-control';
-  control.innerHTML = '<span>Market</span><select aria-label="Select market"><option value="pumpfun">Pump.fun · live simulation</option><option value="raydium-cpmm">Raydium CPMM · validation</option></select>';
+  control.innerHTML = '<span>Market</span><select aria-label="Select market"><option value="pumpfun">Pump.fun · live simulation</option><option value="raydium-cpmm">Raydium CPMM · observed simulation</option></select>';
   const select = control.querySelector('select');
   select.value = market.id;
   select.addEventListener('change', () => {
@@ -279,7 +318,6 @@ window.PumpWizardHandoff = {
     url.searchParams.set('market', select.value);
     location.assign(url.pathname + url.search + url.hash);
   });
-  nav.before(control);
   for (const link of document.querySelectorAll('a[href]')) {
     const value = link.getAttribute('href');
     if (!value || !/^\/(?:$|engine(?:\/|$)|research$|legal$|affiliate$|contact$)/.test(value)) continue;
@@ -340,6 +378,15 @@ window.PumpWizardHandoff = {
       main.replaceChildren(panel.cloneNode(true));
     }
   }
+  if (market.localDemo) {
+    const main = document.querySelector('main');
+    if (main) {
+      const notice = document.createElement('aside');
+      notice.className = 'local-demo-notice'; notice.setAttribute('role', 'status');
+      notice.textContent = 'Synthetic localhost UI preview · not market data, trading evidence, or production P&L';
+      main.prepend(notice);
+    }
+  }
   const navLink = pathname => [...nav.querySelectorAll('a')].find(link => new URL(link.href).pathname === pathname);
   const legal = navLink('/legal');
   if (!navLink('/affiliate')) {
@@ -355,5 +402,43 @@ window.PumpWizardHandoff = {
     contact.textContent = 'Contact';
     if (location.pathname === '/contact') contact.setAttribute('aria-current', 'page');
     nav.insertBefore(contact, legal || null);
+  }
+  legal?.remove();
+
+  if (header && !header.classList.contains('market-shell')) {
+    header.classList.add('market-shell');
+    const brand = header.querySelector('.brand');
+    const ticker = header.querySelector('.live-ticker');
+    if (brand && !brand.querySelector('.solana-mark')) {
+      const mark = document.createElement('span');
+      mark.className = 'solana-mark'; mark.setAttribute('aria-hidden', 'true');
+      mark.innerHTML = '<i></i><i></i><i></i>';
+      brand.prepend(mark);
+    }
+    const top = document.createElement('div');
+    top.className = 'site-topbar';
+    const navigation = document.createElement('div');
+    navigation.className = 'site-navigation-row';
+    if (brand) top.append(brand);
+    if (ticker) top.append(ticker);
+    navigation.append(control, nav);
+    header.replaceChildren(top, navigation);
+  }
+
+  const footer = document.querySelector('footer');
+  if (footer && !footer.classList.contains('market-footer')) {
+    footer.classList.add('market-footer');
+    const identity = document.createElement('p');
+    identity.className = 'footer-identity';
+    identity.textContent = 'PumpWizard.fun · public Solana market research and paper simulation';
+    const links = document.createElement('nav');
+    links.className = 'footer-links'; links.setAttribute('aria-label', 'Footer navigation');
+    for (const [label, path] of [['Live View', '/'], ['Engine', '/engine'], ['Research', '/research'], ['Contact', '/contact'], ['Legal & methodology', '/legal']]) {
+      const link = document.createElement('a');
+      link.href = market.href(path); link.textContent = label;
+      if (new URL(link.href).pathname === location.pathname) link.setAttribute('aria-current', 'page');
+      links.append(link);
+    }
+    footer.replaceChildren(identity, links);
   }
 })();
