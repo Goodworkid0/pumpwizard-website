@@ -18,9 +18,11 @@ with sync_playwright() as playwright:
     expect(page.locator('.site-topbar')).to_be_visible()
     expect(page.locator('.site-topbar .brand-logo')).to_have_attribute('src', '/assets/brand/option-b-orbital-spark-logo-512.png')
     expect(page.locator('.site-topbar .brand-name')).to_have_text('PumpWizard Lab')
+    assert page.locator('.site-topbar .brand-logo').evaluate('element => element.complete && element.naturalWidth > 0')
     expect(page.locator('.site-topbar .live-ticker')).to_be_visible()
     expect(page.locator('.site-navigation-row')).to_be_visible()
-    expect(page.locator('.market-context-control select')).to_have_value('raydium-cpmm')
+    expect(page.locator('.market-toggle-option.raydium-cpmm')).to_have_attribute('aria-pressed', 'true')
+    expect(page.locator('.market-toggle-option.pumpfun')).to_have_attribute('aria-pressed', 'false')
     expect(page.locator('.site-navigation-row .market-context-control')).to_be_visible()
     assert page.locator('.site-nav a').filter(has_text='Legal').count() == 0
     expect(page.locator('.site-nav a')).to_contain_text(['Live Data', 'Live Strategies', 'Lab Research', 'Download Lab Data', '$PUMPWIZARD', 'Socials'])
@@ -31,17 +33,20 @@ with sync_playwright() as playwright:
     expect(page.locator('.portfolio')).to_contain_text('Observed paper ledger')
     expect(page.locator('#positions')).to_contain_text('No observed-ledger positions')
     assert not any('/api/public/' in request for request in requests), requests
-    assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() >= 3
+    assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() == 2
     assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--mint').trim()") == '#14f195'
     page.goto(URL + '/engine?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-panel')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_contain_text('Raydium CPMM')
     expect(page.locator('#strategy-cards')).to_contain_text('No Raydium simulation strategies')
     with page.expect_navigation(wait_until='domcontentloaded'):
-        page.locator('.market-context-control select').select_option('pumpfun')
+        page.locator('.market-toggle-option.pumpfun').click()
     expect(page.locator('html')).to_have_attribute('data-market', 'pumpfun')
     expect(page.locator('.market-context-panel')).to_be_hidden()
     assert 'market=pumpfun' in page.url
+    page.goto(URL + '/research?market=raydium-cpmm', wait_until='domcontentloaded')
+    assert page.locator('.market-context-control').count() == 0
+    assert page.locator('.market-context-panel').count() == 0
     for width in (390, 320):
         page.set_viewport_size({'width': width, 'height': 900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')

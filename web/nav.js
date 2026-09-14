@@ -35,17 +35,19 @@
     'raydium-cpmm': {label: 'Raydium CPMM', state: 'Observed simulation', assurance: 'Standard-RPC observed snapshots'}
   };
   const requested = new URLSearchParams(location.search).get('market');
-  const localDemo = new URLSearchParams(location.search).get('local_demo') === '1' &&
+  const scoped = location.pathname === '/' || location.pathname === '/engine';
+  const localDemo = scoped && new URLSearchParams(location.search).get('local_demo') === '1' &&
     (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-  const id = Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
+  const id = scoped && Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
   const market = definitions[id];
   const href = path => {
     const url = new URL(path, location.origin);
-    url.searchParams.set('market', id);
+    if (url.pathname === '/' || url.pathname === '/engine') url.searchParams.set('market', id);
+    else url.searchParams.delete('market');
     return url.pathname + url.search + url.hash;
   };
   window.PumpWizardMarket = {id, label: market.label, state: market.state, assurance: market.assurance,
-    isPreview: id !== 'pumpfun', localDemo, href};
+    isPreview: scoped && id !== 'pumpfun', scoped, localDemo, href};
   document.documentElement.dataset.market = id;
   if (id !== 'pumpfun') document.body.dataset.marketPreview = 'true';
   const stylesheet = document.createElement('link');
@@ -308,16 +310,22 @@ window.PumpWizardHandoff = {
   if (!nav) return;
   const market = window.PumpWizardMarket;
   const header = nav.closest('.site-header');
-  const control = document.createElement('label');
+  const control = document.createElement('section');
   control.className = 'market-context-control';
-  control.innerHTML = '<span>Market</span><select aria-label="Select market"><option value="pumpfun">Pump.fun · live simulation</option><option value="raydium-cpmm">Raydium CPMM · observed simulation</option></select>';
-  const select = control.querySelector('select');
-  select.value = market.id;
-  select.addEventListener('change', () => {
-    const url = new URL(location.href);
-    url.searchParams.set('market', select.value);
-    location.assign(url.pathname + url.search + url.hash);
-  });
+  control.setAttribute('aria-label', 'Select market');
+  control.innerHTML = '<span class="market-toggle-label">Market</span><div class="market-toggle" role="group" aria-label="Select market">' +
+    '<button type="button" class="market-toggle-option pumpfun" data-market="pumpfun"><i class="market-logo" aria-hidden="true">p</i><span><b>Pump.fun</b><small>Live simulation</small></span></button>' +
+    '<button type="button" class="market-toggle-option raydium-cpmm" data-market="raydium-cpmm"><i class="market-logo" aria-hidden="true">R</i><span><b>Raydium</b><small>Observed simulation</small></span></button></div>';
+  for (const option of control.querySelectorAll('[data-market]')) {
+    const selected = option.dataset.market === market.id;
+    option.classList.toggle('selected', selected);
+    option.setAttribute('aria-pressed', String(selected));
+    option.addEventListener('click', () => {
+      const url = new URL(location.href);
+      url.searchParams.set('market', option.dataset.market);
+      location.assign(url.pathname + url.search + url.hash);
+    });
+  }
   for (const link of document.querySelectorAll('a[href]')) {
     const value = link.getAttribute('href');
     if (!value || !/^\/(?:$|engine(?:\/|$)|research$|legal$|affiliate$|contact$|socials$|downloads$)/.test(value)) continue;
@@ -416,6 +424,11 @@ window.PumpWizardHandoff = {
       brand.setAttribute('aria-label', 'PumpWizard Lab');
       const logo = document.createElement('img');
       logo.className = 'brand-logo'; logo.src = '/assets/brand/option-b-orbital-spark-logo-512.png'; logo.alt = '';
+      logo.addEventListener('error', () => {
+        const fallback = document.createElement('i');
+        fallback.className = 'brand-logo-fallback'; fallback.setAttribute('aria-hidden', 'true'); fallback.textContent = '✦';
+        logo.replaceWith(fallback);
+      }, {once:true});
       const name = document.createElement('span');
       name.className = 'brand-name'; name.textContent = 'PumpWizard Lab';
       brand.replaceChildren(logo, name);
@@ -426,7 +439,8 @@ window.PumpWizardHandoff = {
     navigation.className = 'site-navigation-row';
     if (brand) top.append(brand);
     if (ticker) top.append(ticker);
-    navigation.append(control, nav);
+    if (market.scoped) navigation.append(control);
+    navigation.append(nav);
     header.replaceChildren(top, navigation);
   }
 
@@ -441,7 +455,8 @@ window.PumpWizardHandoff = {
     for (const [label, path] of [['Live Data', '/'], ['Live Strategies', '/engine'], ['Lab Research', '/research'], ['Download Lab Data', '/downloads'], ['$PUMPWIZARD', '/affiliate'], ['Socials', '/socials'], ['Legal & methodology', '/legal']]) {
       const link = document.createElement('a');
       link.href = market.href(path); link.textContent = label;
-      if (new URL(link.href).pathname === location.pathname) link.setAttribute('aria-current', 'page');
+      const active = new URL(link.href).pathname === location.pathname || (path === '/socials' && location.pathname === '/contact');
+      if (active) link.setAttribute('aria-current', 'page');
       links.append(link);
     }
     footer.replaceChildren(identity, links);
