@@ -322,6 +322,23 @@ class MarketArchive:
             row = self.db.execute('SELECT data FROM pools WHERE id=?', (identity,)).fetchone()
         return json.loads(row['data']) if row else None
 
+    def get_event(self, identity):
+        """Read one normalized event without creating or changing anything."""
+        identity = _string(identity, 'event_id', 1, 200)
+        with self.lock:
+            row = self.db.execute('SELECT data FROM market_events WHERE id=?', (identity,)).fetchone()
+        return json.loads(row['data']) if row else None
+
+    def get_pool_state(self, identity, slot, write_version):
+        """Read one exact pool state without creating or changing anything."""
+        identity = _string(identity, 'pool_id', 1, 200)
+        slot = _integer(slot, 'slot', 1)
+        write_version = _integer(write_version, 'write_version')
+        with self.lock:
+            row = self.db.execute('SELECT data FROM pool_states WHERE pool_id=? AND slot=? AND write_version=?',
+                                  (identity, slot, write_version)).fetchone()
+        return json.loads(row['data']) if row else None
+
     def manifest(self):
         """Return a deterministic proof of all immutable records, not a trust claim."""
         with self.lock:
