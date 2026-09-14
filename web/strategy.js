@@ -136,12 +136,6 @@ function configurationControl(strategy){
     const note=$('configuration-copy-note');
     const copy=async()=>{const text=configurationHandoff(controls._strategy);try{await navigator.clipboard.writeText(text)}catch{const input=document.createElement('textarea');input.value=text;document.body.append(input);input.select();document.execCommand('copy');input.remove()}note.textContent='Configuration copied';setTimeout(()=>{if(note.textContent==='Configuration copied')note.textContent=''},2400)};
     $('copy-agent-config').addEventListener('click',copy);
-    const promptButton = document.createElement('button');
-    promptButton.type = 'button';
-    promptButton.id = 'copy-agent-prompt';
-    promptButton.textContent = 'Copy agent prompt';
-    promptButton.title = 'Copy strategy rules, evidence and analysis instructions for your agent';
-    $('copy-agent-config').before(promptButton);
     const downloadButton = document.createElement('button');
     downloadButton.type = 'button';
     downloadButton.id = 'download-research';
@@ -172,16 +166,6 @@ function configurationControl(strategy){
         replay.append(link, note);
       }).catch(() => { replay.textContent = 'Replay archives are temporarily unavailable.'; });
     window.PumpWizardAnalysis.bindDownload(downloadButton, note, () => configurationHandoff(controls._strategy));
-    promptButton.addEventListener('click', async () => {
-      promptButton.disabled = true;
-      note.textContent = 'Preparing analysis…';
-      try {
-        const handoff = await window.PumpWizardAnalysis.withHistory(configurationHandoff(controls._strategy));
-        await window.PumpWizardHandoff.copy(window.PumpWizardHandoff.prompt(handoff));
-        note.textContent = 'Prompt copied — paste into your agent';
-      } catch { note.textContent = 'Could not prepare the prompt. Please try again.'; }
-      finally { promptButton.disabled = false; }
-    });
   }
   controls._strategy=strategy;
 }

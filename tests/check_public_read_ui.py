@@ -50,7 +50,7 @@ with sync_playwright() as p:
     assert page.locator('#closed-positions tr').first.inner_text()!=first_token
     page.locator('#history-previous').click()
     expect(page.locator('#closed-count')).to_contain_text('showing 1–25')
-    expect(page.locator('#copy-agent-prompt')).to_be_visible()
+    expect(page.locator('#copy-agent-prompt')).to_have_count(0)
     expect(page.locator('#copy-agent-config')).to_be_hidden()
     expect(page.locator('#download-research')).to_be_hidden()
     expect(page.locator('.analysis-grid')).to_be_hidden()
@@ -62,13 +62,6 @@ with sync_playwright() as p:
     page.locator('.analysis-load').click()
     expect(page.locator('.analysis-state')).to_have_text('Descriptive evidence',timeout=30000)
     expect(page.locator('.analysis-details')).to_have_attribute('open','')
-    page.locator('#copy-agent-prompt').click()
-    expect(page.locator('#configuration-copy-note')).to_contain_text('Prompt copied',timeout=30000)
-    text=page.evaluate('navigator.clipboard.readText()')
-    handoff=json.loads(text.split('BEGIN PUMPWIZARD SNAPSHOT\n')[1].split('\nEND PUMPWIZARD SNAPSHOT')[0])
-    assert handoff['strategy_analysis']['evidence']['complete']
-    assert handoff['public_endpoints']['telemetry_api'] == URL+'/api/public/strategies/early-frequency'
-    assert page.request.get(handoff['public_endpoints']['telemetry_api']).ok
     page.locator('.strategy-export-options > summary').click()
     page.locator('#copy-agent-config').click()
     expect(page.locator('#configuration-copy-note')).to_have_text('Configuration copied')

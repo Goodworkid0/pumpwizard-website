@@ -162,12 +162,6 @@ function card(strategy) {
   compareButton.addEventListener('click', () => comparison.toggle(strategy.id));
   selectionRow.append(compareButton);
   node.prepend(selectionRow);
-  const promptButton = document.createElement('button');
-  promptButton.type = 'button';
-  promptButton.className = 'copy-card-config copy-agent-prompt';
-  promptButton.textContent = 'Copy agent prompt';
-  promptButton.title = 'Copy strategy rules, evidence and analysis instructions for your agent';
-  copy.before(promptButton);
   const downloadButton = document.createElement('button');
   downloadButton.type = 'button';
   downloadButton.className = 'copy-card-config download-research';
@@ -175,17 +169,7 @@ function card(strategy) {
   downloadButton.title = 'Save configuration, analysis and complete closed-position history as JSON';
   note.before(downloadButton);
   if (!observedMarket) window.PumpWizardAnalysis.bindDownload(downloadButton, note, () => fullHandoff(strategy));
-  else { downloadButton.hidden = true; promptButton.hidden = true; }
-  promptButton.addEventListener('click', async () => {
-    promptButton.disabled = true;
-    note.textContent = 'Preparing analysis…';
-    try {
-      const handoff = await window.PumpWizardAnalysis.withHistory(await fullHandoff(strategy));
-      await window.PumpWizardHandoff.copy(window.PumpWizardHandoff.prompt(handoff));
-      note.textContent = 'Prompt copied — paste into your agent';
-    } catch { note.textContent = 'Could not prepare the prompt. Please try again.'; }
-    finally { promptButton.disabled = false; }
-  });
+  else { downloadButton.hidden = true; }
   copy.addEventListener('click', async () => {
     copy.disabled = true;
     try { await window.PumpWizardHandoff.copy(await fullHandoff(strategy)); note.textContent = 'Configuration copied'; }
