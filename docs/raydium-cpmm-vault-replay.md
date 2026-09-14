@@ -13,6 +13,13 @@ Token-2022, verifies the base 165-byte token-account layout, and confirms its
 mint agrees with the archived pool side before it records a balance. The proof
 report preserves the full input and links each stored state to its capture hash.
 
+A capture may also include the matching CPMM `pool_account` (program owner,
+address and base64 data). Its 637-byte `PoolState` layout is then verified against
+the archived config, both vaults/mints/token programs, accrued fees and swap
+status. The archive records fee-free trade reserves separately from gross vault
+balances. Quotes remain unavailable until this full pool capture and a compatible
+config snapshot are both present.
+
 ```bash
 python3 scripts/replay_raydium_cpmm_vaults.py \
   --input /absolute/saved-cpmm-vault-recording.json \

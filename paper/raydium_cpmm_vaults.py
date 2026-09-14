@@ -21,6 +21,8 @@ TOKEN_PROGRAMS = frozenset((
     'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb',
 ))
 BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+POOL_ACCOUNT_LENGTH = 637
+POOL_ACCOUNT_DISCRIMINATOR = hashlib.sha256(b'account:PoolState').digest()[:8]
 
 
 class RaydiumVaultReplayError(ValueError):
@@ -72,6 +74,70 @@ def _vault(value, expected_mint, label):
             'data_sha256': hashlib.sha256(raw).hexdigest()}
 
 
+def _account_bytes(value, label, length):
+    if not isinstance(value, dict):
+        raise RaydiumVaultReplayError('Missing ' + label)
+    encoded = value.get('data_base64')
+    if not isinstance(encoded, str):
+        raise RaydiumVaultReplayError('Missing ' + label + ' data')
+    try:
+        raw = base64.b64decode(encoded.encode('ascii'), validate=True)
+    except (UnicodeEncodeError, ValueError) as exc:
+        raise RaydiumVaultReplayError('Invalid ' + label + ' data') from exc
+    if len(raw) != length:
+        raise RaydiumVaultReplayError('Unexpected ' + label + ' length')
+    return raw
+
+
+def _pool_account(value, pool, base, quote):
+    """Decode a full CPMM pool account paired with the two captured vaults."""
+    if not isinstance(value, dict):
+        raise RaydiumVaultReplayError('Missing pool account')
+    if solana_address(value.get('address'), 'pool_account') != pool['pool_address']:
+        raise RaydiumVaultReplayError('Pool account address does not match archived pool')
+    if value.get('owner') != CPMM_PROGRAM_ID:
+        raise RaydiumVaultReplayError('Unexpected pool account owner')
+    raw = _account_bytes(value, 'pool account', POOL_ACCOUNT_LENGTH)
+    if raw[:8] != POOL_ACCOUNT_DISCRIMINATOR or raw[389] not in (0, 1, 2) or raw[390] not in (0, 1):
+        raise RaydiumVaultReplayError('Unexpected CPMM pool account layout')
+    configuration = pool.get('configuration')
+    if not isinstance(configuration, dict) or _base58(raw[8:40]) != configuration.get('cpmm_config'):
+        raise RaydiumVaultReplayError('Pool account config does not match archived pool')
+    token_0 = (_base58(raw[168:200]), _base58(raw[72:104]), _base58(raw[232:264]))
+    token_1 = (_base58(raw[200:232]), _base58(raw[104:136]), _base58(raw[264:296]))
+    expected = {(base['mint'], base['address']): ('base', base),
+                (quote['mint'], quote['address']): ('quote', quote)}
+    sides = []
+    for mint, vault, program in (token_0, token_1):
+        side = expected.get((mint, vault))
+        if not side or side[1]['owner_program'] != program:
+            raise RaydiumVaultReplayError('Pool account vault mapping does not match captured vaults')
+        sides.append(side)
+    if sides[0][0] == sides[1][0]:
+        raise RaydiumVaultReplayError('Pool account maps both sides to one vault')
+    accrued = {
+        sides[0][0]: {'protocol': int.from_bytes(raw[341:349], 'little'),
+                      'fund': int.from_bytes(raw[357:365], 'little'),
+                      'creator': int.from_bytes(raw[397:405], 'little')},
+        sides[1][0]: {'protocol': int.from_bytes(raw[349:357], 'little'),
+                      'fund': int.from_bytes(raw[365:373], 'little'),
+                      'creator': int.from_bytes(raw[405:413], 'little')},
+    }
+    reserves = {}
+    for side, vault in (('base', base), ('quote', quote)):
+        fee_total = sum(accrued[side].values())
+        if fee_total > vault['amount']:
+            raise RaydiumVaultReplayError('Accrued ' + side + ' fees exceed vault balance')
+        reserves[side] = vault['amount'] - fee_total
+    return {'address': pool['pool_address'], 'config_address': _base58(raw[8:40]),
+            'swap_enabled': not bool(raw[329] & 4), 'status': raw[329],
+            'open_time': int.from_bytes(raw[373:381], 'little'),
+            'creator_fee_mode': raw[389], 'creator_fee_enabled': bool(raw[390]),
+            'base_fee_accrual': accrued['base'], 'quote_fee_accrual': accrued['quote'],
+            'base_trade_reserve': reserves['base'], 'quote_trade_reserve': reserves['quote'],
+            'data_sha256': hashlib.sha256(raw).hexdigest()}
+
+
 def _state(capture, archive):
     if not isinstance(capture, dict):
         raise RaydiumVaultReplayError('Capture must be an object')
@@ -88,12 +154,15 @@ def _state(capture, archive):
     quote = _vault(capture.get('quote_vault'), pool['quote_mint'], 'quote')
     if base['address'] == quote['address']:
         raise RaydiumVaultReplayError('Vault addresses must differ')
+    state = {'base_vault': base, 'quote_vault': quote,
+             'capture_sha256': hashlib.sha256(raw.encode()).hexdigest()}
+    if 'pool_account' in capture:
+        state['pool_account'] = _pool_account(capture['pool_account'], pool, base, quote)
     return {'pool_id': pool_id, 'slot': _integer(capture.get('slot'), 'slot', 1),
             'write_version': _integer(capture.get('write_version'), 'write_version'),
             'commitment': commitment, 'observed_at': _time(capture.get('observed_at'), 'observed_at'),
             'parser': PARSER,
-            'state': {'base_vault': base, 'quote_vault': quote,
-                      'capture_sha256': hashlib.sha256(raw.encode()).hexdigest()}}
+            'state': state}
 
 
 def ingest_vault_recording(recording, archive):
