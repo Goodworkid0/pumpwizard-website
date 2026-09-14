@@ -135,7 +135,7 @@ function card(strategy) {
   if (observedMarket) {
     node.querySelector('.band').textContent = 'Three observed snapshots · 0.5% trend confirmation';
     const anchor = node.querySelector('.lab-card-link');
-    anchor.href = window.PumpWizardMarket.href('/engine');
+    anchor.href = window.PumpWizardMarket.href('/engine/' + encodeURIComponent(strategy.id));
     const metrics = anchor.querySelectorAll('dl div');
     metrics[1].querySelector('dt').textContent = 'Observed-ledger events';
     metrics[1].querySelector('dd').textContent = r.total_entries || 0;

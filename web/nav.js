@@ -35,7 +35,7 @@
     'raydium-cpmm': {label: 'Raydium CPMM', state: 'Observed simulation', assurance: 'Standard-RPC observed snapshots'}
   };
   const requested = new URLSearchParams(location.search).get('market');
-  const scoped = location.pathname === '/' || location.pathname === '/engine';
+  const scoped = location.pathname === '/' || location.pathname === '/engine' || location.pathname.startsWith('/engine/');
   const selectedId = Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
   const localDemo = scoped && new URLSearchParams(location.search).get('local_demo') === '1' &&
     (location.hostname === 'localhost' || location.hostname === '127.0.0.1');

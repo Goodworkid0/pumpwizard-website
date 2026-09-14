@@ -18,6 +18,11 @@ with sync_playwright() as playwright:
     expect(page.locator('#strategy-cards')).to_contain_text('NEAR / USDC observed trend', timeout=30000)
     expect(page.locator('#active-agents')).to_have_text('1')
     expect(page.locator('#strategy-cards')).to_contain_text('500 USDC')
+    page.locator('#strategy-cards .lab-card-link').click()
+    expect(page).to_have_url(URL + '/engine/near-usdc-observed-trend-v1?market=raydium-cpmm')
+    expect(page.locator('#strategy-name')).to_have_text('NEAR / USDC observed trend', timeout=30000)
+    expect(page.locator('#signal-rules')).to_contain_text('3 consecutive observed snapshots')
+    expect(page.locator('#risk-rules')).to_contain_text('50 USDC')
     assert not errors, errors
     browser.close()
 print('Raydium public-read populated-render check passed')

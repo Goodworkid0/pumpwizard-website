@@ -1,4 +1,43 @@
-if (typeof window === 'undefined' || !window.PumpWizardMarket?.isPreview) {
+if (typeof window !== 'undefined' && window.PumpWizardMarket?.id === 'raydium-cpmm') {
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+  const money = value => value == null ? '—' : new Intl.NumberFormat('en-US', {maximumFractionDigits:2}).format(value) + ' USDC';
+  const signed = value => value == null ? '—' : (value >= 0 ? '+' : '−') + money(Math.abs(value));
+  const when = value => value ? new Date(value * 1000).toLocaleString() : '—';
+  const id = location.pathname.split('/').filter(Boolean).at(-1);
+  const rules = (host, rows) => $(host).replaceChildren(...rows.map(([label, value]) => {
+    const item = document.createElement('div'); item.innerHTML = '<dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd>'; return item;
+  }));
+  const empty = (host, cols, message) => $(host).innerHTML = '<tr><td colspan="' + cols + '" class="empty">' + esc(message) + '</td></tr>';
+  function render(data) {
+    const strategy = data.strategies?.[0], report = strategy?.report;
+    if (!strategy || !report) throw Error('Observed strategy unavailable');
+    $('strategy-name').textContent = strategy.label;
+    $('strategy-summary').textContent = 'Read-only observed Raydium CPMM policy. It requires three snapshots and a +0.5% probe trend before a virtual entry; no wallet or order route is connected.';
+    $('started-at').textContent = when(report.started_at); $('last-at').textContent = when(report.last_at);
+    $('equity').textContent = money(report.equity_usd); $('pnl').textContent = signed(report.pnl_usd);
+    $('pnl').className = report.pnl_usd >= 0 ? 'up' : 'down'; $('entries').textContent = report.total_entries;
+    $('win-rate').textContent = report.closed_win_rate == null ? '—' : (report.closed_win_rate * 100).toFixed(1) + '%';
+    $('win-note').textContent = report.closed_count + ' closed observed positions';
+    $('thesis-title').textContent = 'Observed snapshot trend';
+    $('thesis').textContent = 'The policy examines a fixed NEAR / USDC CPMM pool using retained standard-RPC snapshots. It remains separate from Pump.fun and does not treat a quote-token balance as USD valuation.';
+    rules('signal-rules', [['Market', 'Raydium CPMM · NEAR / USDC'], ['Confirmation', '3 consecutive observed snapshots'], ['Entry threshold', '+0.5% one-NEAR quote trend'], ['Decision cadence', '60 seconds']]);
+    rules('risk-rules', [['Virtual starting balance', '500 USDC'], ['Virtual entry size', '50 USDC'], ['Maximum positions', '1'], ['Maximum hold', '10 snapshots'], ['Execution', 'Observed simulation only']]);
+    $('open-count').textContent = (data.open_positions || []).length + ' positions';
+    $('closed-count').textContent = (data.closed_positions || []).length + ' closed';
+    document.querySelector('.ledger-note').textContent = 'Entries and marks are quote-token estimates from retained observed snapshots. No order transaction or USD FX valuation exists.';
+    empty('open-positions', 7, 'No observed-ledger positions yet. The policy is waiting for its entry threshold.');
+    empty('closed-positions', 6, 'No observed-ledger exits yet.');
+    document.body.classList.remove('strategy-loading'); document.querySelector('main').setAttribute('aria-busy', 'false');
+  }
+  window.PumpWizardPublic.request('/api/public/strategies/' + encodeURIComponent(id)).then(render).catch(() => {
+    $('strategy-name').textContent = 'Observed strategy unavailable';
+    $('strategy-summary').textContent = 'The Raydium observed strategy cannot be verified or has not been published.';
+    document.body.classList.remove('strategy-loading'); document.querySelector('main').setAttribute('aria-busy', 'false');
+  });
+})();
+} else if (typeof window === 'undefined' || !window.PumpWizardMarket?.isPreview) {
 const $ = id => document.getElementById(id);
 const money = n => n == null ? '—' : new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(n);
 const signed = n => (n >= 0 ? '+' : '−') + money(Math.abs(n));
