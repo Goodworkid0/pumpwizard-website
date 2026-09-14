@@ -23,6 +23,9 @@ with sync_playwright() as playwright:
     expect(page.locator('#strategy-name')).to_have_text('NEAR / USDC observed trend', timeout=30000)
     expect(page.locator('#signal-rules')).to_contain_text('3 consecutive observed snapshots')
     expect(page.locator('#risk-rules')).to_contain_text('50 USDC')
+    page.locator('.market-toggle-option.pumpfun').click()
+    expect(page).to_have_url(URL + '/engine?market=pumpfun')
+    expect(page.locator('#strategy-cards')).not_to_contain_text('Raydium strategy unavailable', timeout=30000)
     assert not errors, errors
     browser.close()
 print('Raydium public-read populated-render check passed')
