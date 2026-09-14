@@ -110,11 +110,13 @@ function card(strategy) {
   const r = strategy.report, c = r.config, node = document.createElement('article');
   const today = $('strategy-sort').value.startsWith('pnl_24h');
   const displayedPnl = today ? r.pnl_24h_usd : r.pnl_usd;
+  const returnBase = today ? r.equity_usd - displayedPnl : r.initial_usd;
+  const displayedReturn = Number.isFinite(returnBase) && returnBase > 0 ? displayedPnl / returnBase : null;
   const pnlLabel = today ? 'Today P&L' : 'All-time P&L';
   const description = strategy.description || (strategy.id.startsWith('exit-study-twin') ? 'Core-frequency entries with a different target and trailing-exit policy.' : THEORY[c.entry_style]) || 'An independent forward-tested agent.';
   node.className = 'lab-card';
   const metrics = [
-    ['Wallet / ' + pnlLabel, money(r.equity_usd) + ' <i class="' + (displayedPnl > 0 ? 'up' : displayedPnl < 0 ? 'down' : '') + '">' + signed(displayedPnl) + '</i>'],
+    ['Wallet / ' + pnlLabel, money(r.equity_usd) + ' <i class="' + (displayedPnl > 0 ? 'up' : displayedPnl < 0 ? 'down' : '') + '">' + signed(displayedPnl) + ' (' + pct(displayedReturn) + ')</i>'],
     ['Total trades / unique coins', (r.total_entries || 0) + ' / ' + (r.unique_coins || 0)],
     ['Closed performance', pct(r.closed_win_rate) + ' win rate · ' + r.closed_count + ' closed'],
     ['Observe / maximum hold', duration(c.observation_seconds) + ' / ' + duration(c.max_hold_seconds)]

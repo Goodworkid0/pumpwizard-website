@@ -22,12 +22,15 @@ with sync_playwright() as playwright:
     expect(page.locator('#position-count')).not_to_have_text('0 open positions')
     assert page.locator('#allocations .allocation-link').count() > 0
     expect(page.locator('#allocations .allocation-link').first).to_contain_text('Today P&L')
+    expect(page.locator('#allocations .allocation-link').first).to_contain_text('All-time P&L')
+    expect(page.locator('#allocations .allocation-link').first).to_contain_text('%')
     assert page.locator('#positions .position-row').count() > 0
     page.locator('#range-all').click()
     expect(page.locator('#allocations .allocation-link').first).to_contain_text('Today P&L')
     page.goto(URL + '/engine?market=pumpfun', wait_until='domcontentloaded')
     expect(page.locator('#strategy-sort')).to_have_value('pnl_24h_usd', timeout=30000)
     expect(page.locator('#strategy-cards .lab-card').first).to_contain_text('Wallet / Today P&L')
+    expect(page.locator('#strategy-cards .lab-card').first).to_contain_text('%')
     assert not errors, errors
     browser.close()
     print('Pump.fun Live Data populated-render check passed')
