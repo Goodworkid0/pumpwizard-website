@@ -69,8 +69,9 @@ def main():
             existing()
             print('Landing restored; server ledger left untouched.')
             return
-        for path in ('/','/engine','/research','/affiliate','/contact','/legal',
-                     '/api/public/health','/api/public/catalog','/page-shell.css'):
+        for path in ('/','/engine','/research','/downloads','/socials','/affiliate','/contact','/legal',
+                     '/assets/brand/option-b-orbital-spark-logo-512.png','/assets/pump-logomark.svg',
+                     '/assets/raydium-logomark.svg','/api/public/health','/api/public/catalog','/page-shell.css'):
             check('https://pumpwizard.fun'+path,'pumpwizard.fun')
         for path in ('/data/service.env','/.git/config','/acp','/api/state','/api/public'):
             check('https://pumpwizard.fun'+path,'pumpwizard.fun',404)
