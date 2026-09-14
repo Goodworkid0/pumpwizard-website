@@ -1,7 +1,8 @@
-if (typeof window === 'undefined' || !window.PumpWizardMarket?.isPreview) {
+if (typeof window !== 'undefined') {
 const $ = id => document.getElementById(id);
-const money = n => n == null ? '—' : new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
-const signed = n => (n >= 0 ? '+' : '−') + money(Math.abs(n));
+const observedMarket = window.PumpWizardMarket?.id === 'raydium-cpmm';
+const money = n => n == null ? '—' : observedMarket ? new Intl.NumberFormat('en-US', {maximumFractionDigits:2}).format(n) + ' USDC' : new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
+const signed = n => n == null ? '—' : (n >= 0 ? '+' : '−') + money(Math.abs(n));
 const pct = n => n == null ? '—' : (n * 100).toFixed(1) + '%';
 const when = t => t ? new Date(t * 1000).toLocaleString() : '—';
 const esc = x => String(x ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'}[c]));
@@ -32,6 +33,7 @@ for (const [value, label] of [['', 'All Instances'], ['original', 'Original stra
   versionNav.append(button);
 }
 document.querySelector('.lab-toolbar').before(versionNav);
+if (observedMarket) versionNav.hidden = true;
 const pageSize = 24;
 let comparedKey = window.PumpWizardComparison.parseSelection(location.search).join(',');
 let catalogController = null, catalogDebounce = null;
@@ -130,6 +132,17 @@ function card(strategy) {
     node.querySelector('.target-row').before(note);
   }
   const copy = node.querySelector('.copy-card-config'), note = node.querySelector('.card-copy-note');
+  if (observedMarket) {
+    node.querySelector('.band').textContent = 'Three observed snapshots · 0.5% trend confirmation';
+    const anchor = node.querySelector('.lab-card-link');
+    anchor.href = window.PumpWizardMarket.href('/engine');
+    const metrics = anchor.querySelectorAll('dl div');
+    metrics[1].querySelector('dt').textContent = 'Observed-ledger events';
+    metrics[1].querySelector('dd').textContent = r.total_entries || 0;
+    metrics[2].querySelector('dt').textContent = 'Entry condition';
+    metrics[2].querySelector('dd').textContent = '3 snapshots · +0.5% probe trend';
+    anchor.querySelector('.target-row').innerHTML = '<span>Isolated 500 USDC ledger</span><span>Observed policy →</span>';
+  }
   const selectionRow = document.createElement('div');
   selectionRow.className = 'card-comparison-selection';
   const compareButton = document.createElement('button');
@@ -154,7 +167,8 @@ function card(strategy) {
   downloadButton.textContent = 'Download research';
   downloadButton.title = 'Save configuration, analysis and complete closed-position history as JSON';
   note.before(downloadButton);
-  window.PumpWizardAnalysis.bindDownload(downloadButton, note, () => fullHandoff(strategy));
+  if (!observedMarket) window.PumpWizardAnalysis.bindDownload(downloadButton, note, () => fullHandoff(strategy));
+  else { downloadButton.hidden = true; promptButton.hidden = true; }
   promptButton.addEventListener('click', async () => {
     promptButton.disabled = true;
     note.textContent = 'Preparing analysis…';

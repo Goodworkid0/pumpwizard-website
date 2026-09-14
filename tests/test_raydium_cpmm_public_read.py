@@ -54,3 +54,12 @@ class RaydiumCPMMPublicReadTests(unittest.TestCase):
         self.assertEqual(document['observed_evidence']['ledger_proof']['events'], 0)
         self.assertEqual(reader.export('/api/public/history.csv').decode().splitlines(),
                          ['event_id,at,kind,data_json,content_sha256'])
+
+    def test_catalog_and_strategy_detail_are_market_scoped(self):
+        reader = RaydiumCPMMPublicRead(self.root)
+        catalog = json.loads(reader.response('/api/public/catalog', {'q': ['near']}))
+        self.assertEqual(catalog['total'], 1)
+        self.assertEqual(catalog['strategies'][0]['id'], 'public-pilot-v1')
+        detail = json.loads(reader.response('/api/public/strategies/public-pilot-v1', {}))
+        self.assertEqual([item['id'] for item in detail['strategies']], ['public-pilot-v1'])
+        self.assertEqual(detail['strategies'][0]['family'], 'observed_trend')

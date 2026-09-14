@@ -14,6 +14,10 @@ with sync_playwright() as playwright:
     expect(page.locator('#hero-capital')).to_have_text('500 USDC')
     expect(page.locator('#count')).to_contain_text('1 strategies')
     expect(page.locator('#strategies-list')).to_contain_text('NEAR / USDC observed trend')
+    page.goto(URL + '/engine?market=raydium-cpmm', wait_until='domcontentloaded')
+    expect(page.locator('#strategy-cards')).to_contain_text('NEAR / USDC observed trend', timeout=30000)
+    expect(page.locator('#active-agents')).to_have_text('1')
+    expect(page.locator('#strategy-cards')).to_contain_text('500 USDC')
     assert not errors, errors
     browser.close()
 print('Raydium public-read populated-render check passed')

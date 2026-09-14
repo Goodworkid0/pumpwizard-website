@@ -128,6 +128,8 @@ class RaydiumCPMMPublicRead:
             'closed_win_rate': (sum(item['pnl_usd'] > 0 for item in closed_positions) / len(closed_positions)) if closed_positions else None,
             'open_position_count': len(open_positions), 'pending_count': 0, 'total_entries': len(events),
             'trade_counts': {'today': today_events, 'all': len(events)}, 'activity_counts': {'today': today_events, 'all': len(events)},
+            'experiment_status': 'active' if events else 'observing', 'started_at': first['observed_at'],
+            'last_at': latest['observed_at'],
         }
         strategy = {'id': config['id'], 'label': 'NEAR / USDC observed trend', 'family': 'observed_trend',
                     'description': 'One isolated observed-simulation pilot: three snapshots, a 0.5% probe trend, and a 10-snapshot maximum hold.',
@@ -162,6 +164,28 @@ class RaydiumCPMMPublicRead:
             return encode(document)
         if path == '/api/public/live-feed':
             return encode({'events': [], '_snapshot': document['_snapshot']})
+        if path == '/api/public/catalog':
+            strategies = document['strategies']
+            term = (query.get('q', [''])[0] or '').lower()
+            if term:
+                strategies = [item for item in strategies if term in (item['id'] + ' ' + item['label'] + ' ' + item['family']).lower()]
+            requested = set(filter(None, (query.get('compare', [''])[0] or '').split(',')))
+            report = document['strategies'][0]['report']
+            return encode({'strategies': strategies, 'total': len(strategies), 'page': 1, 'page_size': max(1, len(strategies)),
+                           'families': ['observed_trend'], 'comparison': [item for item in document['strategies'] if item['id'] in requested],
+                           'activity': {'instances': 1, 'dead': int(report['equity_usd'] < 50),
+                                        'events_24h': report['activity_counts']['today'],
+                                        'entries_24h': report['trade_counts']['today'],
+                                        'open_positions': report['open_position_count']}, '_snapshot': document['_snapshot']})
+        if path.startswith('/api/public/strategies/'):
+            strategy_id = path[len('/api/public/strategies/'):]
+            strategy = next((item for item in document['strategies'] if item['id'] == strategy_id), None)
+            if strategy is None:
+                raise ReadError(404, 'Raydium strategy not found')
+            return encode({'strategies': [strategy],
+                           'open_positions': [item for item in document['open_positions'] if item['strategy_id'] == strategy_id],
+                           'closed_positions': [item for item in document['closed_positions'] if item['strategy_id'] == strategy_id],
+                           '_snapshot': document['_snapshot']})
         raise ReadError(404, 'Raydium public endpoint not found')
 
     def export(self, path):
