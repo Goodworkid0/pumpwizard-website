@@ -1,4 +1,5 @@
 import copy
+import gzip
 import json
 import sqlite3
 import tempfile
@@ -111,10 +112,15 @@ class PublicReadTests(unittest.TestCase):
             with self.assertRaises(ReadError): catalog(generation,query)
 
     def test_large_csv_refuses_instead_of_truncating(self):
-        with self.runner.db:
-            self.runner.db.executemany('INSERT INTO equity(at,value,cash) VALUES (?,500,500)',[(n,) for n in range(10001)])
+        self.add_trades(1,10001)
         with self.assertRaises(ReadError) as exc: self.service.export('/api/public/history.csv')
         self.assertEqual(exc.exception.status,413)
+
+    def test_compressed_history_archive_allows_larger_complete_export(self):
+        self.add_trades(1,10001)
+        rows = gzip.decompress(self.service.export('/api/public/history.jsonl.gz')).splitlines()
+        self.assertEqual(len(rows),10001)
+        self.assertEqual(json.loads(rows[0])['record_type'],'closed_position')
 
 
 if __name__=='__main__':unittest.main()

@@ -1,5 +1,8 @@
 """Published public read models. HTTP traffic never builds simulator reports."""
 import copy
+import csv
+import gzip
+import io
 import json
 import logging
 import math
@@ -340,7 +343,7 @@ class PublicReadService:
             self.history_slots.release()
 
     def export(self, path):
-        """Small complete CSV exports only; never silently truncate large datasets."""
+        """Return a complete CSV or compressed JSON Lines public export."""
         if not self.export_slot.acquire(blocking=False):
             raise ReadError(429, 'An export is already being prepared')
         try:
@@ -349,18 +352,28 @@ class PublicReadService:
                 if isinstance(cached[1], ReadError): raise cached[1]
                 return cached[1]
             try:
+                archive = path.endswith('.jsonl.gz')
+                research = 'research' in path
                 with read_brain(self.brain, timeout=10) as shadow:
                     count = 0
-                    sources = [(shadow.memory.db, ('research_bars','research_events','research_outcomes'))] if path.endswith('research.csv') else [
-                        (item['runner'].db, ('events','sales','trades','equity')) for item in [shadow.primary_strategy]+shadow.experiment_runners]
+                    sources = [(shadow.memory.db, ('research_bars','research_events','research_outcomes'))] if research else [
+                        (item['runner'].db, ('events','sales','trades')) for item in [shadow.primary_strategy]+shadow.experiment_runners]
                     for con, tables in sources:
                         for table in tables:
-                            count += con.execute(f'SELECT count(*) FROM (SELECT 1 FROM {table} LIMIT 10001)').fetchone()[0]
-                            if count > 10000:
-                                raise ReadError(413, 'Dataset exceeds the 10,000-row public CSV limit. Use per-instance research downloads or an operator-prepared archive.')
-                    body = (shadow.export_research_csv() if path.endswith('research.csv') else shadow.export_public_history_csv()).encode()
-                    if len(body) > 20_000_000:
-                        raise ReadError(413, 'Export exceeds the 20 MB public limit')
+                            count += con.execute(f'SELECT count(*) FROM (SELECT 1 FROM {table} LIMIT 1000001)').fetchone()[0]
+                            if count > (1_000_000 if archive else 10000):
+                                kind = 'compressed JSON Lines archive' if archive else 'CSV'
+                                raise ReadError(413, f'Dataset exceeds the {kind} public row limit. Use a per-instance export or an operator-prepared archive.')
+                    raw = (shadow.export_research_csv() if research else shadow.export_public_history_csv()).encode()
+                    if archive:
+                        rows = csv.DictReader(io.StringIO(raw.decode()))
+                        body = gzip.compress(b''.join(encode(row) + b'\n' for row in rows), compresslevel=9, mtime=0)
+                        if len(body) > 100_000_000:
+                            raise ReadError(413, 'Compressed archive exceeds the 100 MB public limit. Use a per-instance export or an operator-prepared archive.')
+                    else:
+                        body = raw
+                        if len(body) > 20_000_000:
+                            raise ReadError(413, 'CSV export exceeds the 20 MB public limit. Use the compressed JSON Lines archive instead.')
                 self.export_cache[path] = (time.monotonic(), body)
                 return body
             except (ReadError, sqlite3.Error) as exc:

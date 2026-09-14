@@ -405,6 +405,7 @@ window.PumpWizardHandoff = {
 
   if (header && !header.classList.contains('market-shell')) {
     header.classList.add('market-shell');
+    header.style.width = '100%';
     const brand = header.querySelector('.brand');
     const ticker = header.querySelector('.live-ticker');
     if (brand && !brand.querySelector('.brand-logo')) {
@@ -434,6 +435,7 @@ window.PumpWizardHandoff = {
   const footer = document.querySelector('footer');
   if (footer && !footer.classList.contains('market-footer')) {
     footer.classList.add('market-footer');
+    footer.style.width = '100%';
     const identity = document.createElement('p');
     identity.className = 'footer-identity';
     identity.textContent = 'PumpWizard Lab · public Solana market research and paper simulation';

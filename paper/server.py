@@ -98,7 +98,16 @@ def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
                         self.send_package(path[len('/api/public/packages/'):-4])
                         return
                     elif path in ('/api/public/history.csv', '/api/public/research.csv'):
-                        body, mime = selected_public.export(path), 'text/csv; charset=utf-8'
+                        target = path.removesuffix('.csv') + '.jsonl.gz'
+                        if urlsplit(self.path).query:
+                            target += '?' + urlsplit(self.path).query
+                        self.send_response(308)
+                        self.send_header('Location', target)
+                        self.send_header('Cache-Control', 'no-store')
+                        self.end_headers()
+                        return
+                    elif path in ('/api/public/history.jsonl.gz', '/api/public/research.jsonl.gz'):
+                        body, mime = selected_public.export(path), 'application/gzip'
                     elif path.startswith('/api/public/strategies/') and path.endswith('/trades'):
                         if selected_public is raydium_public:
                             raise ReadError(404, 'Raydium strategy history is not published')
@@ -118,13 +127,13 @@ def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
                         if self.command != 'HEAD': self.wfile.write(body)
                     except (BrokenPipeError, ConnectionResetError): pass
                     return
-            elif path in ('/downloads', '/downloads.css', '/socials', '/assets/brand/option-b-orbital-spark-logo-512.png',
+            elif path in ('/downloads', '/downloads.css', '/downloads.js', '/socials', '/assets/brand/option-b-orbital-spark-logo-512.png',
                           '/assets/pump-logomark.svg', '/assets/raydium-logomark.svg'):
-                name = {'/downloads': 'downloads.html', '/downloads.css': 'downloads.css', '/socials': 'contact.html',
+                name = {'/downloads': 'downloads.html', '/downloads.css': 'downloads.css', '/downloads.js': 'downloads.js', '/socials': 'contact.html',
                         '/assets/brand/option-b-orbital-spark-logo-512.png': 'assets/brand/option-b-orbital-spark-logo-512.png',
                         '/assets/pump-logomark.svg': 'assets/pump-logomark.svg', '/assets/raydium-logomark.svg': 'assets/raydium-logomark.svg'}[path]
                 body = (root / name).read_bytes()
-                mime = {'/downloads': 'text/html', '/downloads.css': 'text/css', '/socials': 'text/html',
+                mime = {'/downloads': 'text/html', '/downloads.css': 'text/css', '/downloads.js': 'text/javascript', '/socials': 'text/html',
                         '/assets/brand/option-b-orbital-spark-logo-512.png': 'image/png',
                         '/assets/pump-logomark.svg': 'image/svg+xml', '/assets/raydium-logomark.svg': 'image/svg+xml'}[path]
             elif path in ('/', '/app.js', '/nav.js', '/activity-feed.css', '/activity-controls.css', '/activity-token.css', '/leaderboard.css', '/leaderboard-fixes.css', '/market-radar.css', '/market-context.css', '/agent-live.css', '/agent-share.css', '/agent-hero.css', '/style.css', '/home-extra.css', '/acp', '/acp.js', '/acp.css',

@@ -340,7 +340,7 @@ class BrainService:
         return self._closed_position_rows(strategy)
 
     def export_public_history_csv(self):
-        """Export all recorded strategy events and value samples without exposing any signing data."""
+        """Export complete public execution records without high-frequency value marks."""
         fields=('strategy_id','strategy_label','record_type','at','mint','symbol','action',
                 'entry_cap_usd','exit_cap_usd','pnl_usd','equity_usd','cash_usd','payload')
         out=io.StringIO();writer=csv.DictWriter(out,fields);writer.writeheader()
@@ -358,7 +358,6 @@ class BrainService:
                     'SELECT at,mint,action,data FROM '+('decisions' if sampler else 'events')+' ORDER BY id')]
                 sales=[] if sampler else [json.loads(row['data']) for row in runner.db.execute('SELECT data FROM sales ORDER BY id')]
                 trades=[json.loads(row['data']) for row in runner.db.execute('SELECT data FROM trades ORDER BY id')]
-                equity=[dict(row) for row in runner.db.execute('SELECT at,value,cash FROM equity ORDER BY id')]
             for event in events:write(dict(common,record_type='event',at=event['at'],mint=event['mint'],
                 action=event['action'] if sampler else event['action'],payload=canonical(event['data'])))
             for sale in sales:write(dict(common,record_type='sale_leg',at=sale['exit_at'],mint=sale['mint'],
@@ -367,8 +366,6 @@ class BrainService:
             for trade in trades:write(dict(common,record_type='closed_position',at=trade['exit_at'],mint=trade['mint'],
                 symbol=trade['symbol'],entry_cap_usd=trade['entry_market_cap_usd'] if sampler else trade['entry_cap'],exit_cap_usd=trade.get('exit_market_cap_usd') if sampler else trade.get('last_cap'),
                 pnl_usd=trade['pnl_usd'],action=trade['exit_reason'],payload=canonical(trade)))
-            for point in equity:write(dict(common,record_type='equity_snapshot',at=point['at'],
-                equity_usd=point['value'],cash_usd=point['cash']))
         return out.getvalue()
 
     def export_research_csv(self):
