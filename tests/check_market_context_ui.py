@@ -27,7 +27,7 @@ with sync_playwright() as playwright:
     assert page.locator('.market-toggle-option.raydium-cpmm .market-logo').evaluate('element => element.complete && element.naturalWidth > 0')
     expect(page.locator('.site-navigation-row .market-context-control')).to_be_visible()
     assert page.locator('.site-nav a').filter(has_text='Legal').count() == 0
-    expect(page.locator('.site-nav a')).to_contain_text(['Live Data', 'Live Strategies', 'Lab Research', 'Download Lab Data', '$PUMPWIZARD', 'Socials'])
+    expect(page.locator('.site-nav a')).to_contain_text(['Live Data', 'Live Strategies', 'Lab Research', 'Download Lab Data', 'Community', '$PUMPWIZARD'])
     expect(page.locator('footer .footer-links a').filter(has_text='Legal & methodology')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_contain_text('Awaiting read model')

@@ -404,7 +404,7 @@ window.PumpWizardHandoff = {
   legal?.remove();
   const primaryItems = [
     ['Live Data', '/'], ['Live Strategies', '/engine'], ['Lab Research', '/research'],
-    ['Download Lab Data', '/downloads'], ['$PUMPWIZARD', '/affiliate'], ['Socials', '/socials']
+    ['Download Lab Data', '/downloads'], ['Community', '/socials'], ['$PUMPWIZARD', '/affiliate']
   ];
   const primaryLinks = primaryItems.map(([label, pathname]) => {
     let link = navLink(pathname);
@@ -454,7 +454,7 @@ window.PumpWizardHandoff = {
     identity.textContent = 'PumpWizard Lab · public Solana market research and paper simulation';
     const links = document.createElement('nav');
     links.className = 'footer-links'; links.setAttribute('aria-label', 'Footer navigation');
-    for (const [label, path] of [['Live Data', '/'], ['Live Strategies', '/engine'], ['Lab Research', '/research'], ['Download Lab Data', '/downloads'], ['$PUMPWIZARD', '/affiliate'], ['Socials', '/socials'], ['Legal & methodology', '/legal']]) {
+    for (const [label, path] of [['Live Data', '/'], ['Live Strategies', '/engine'], ['Lab Research', '/research'], ['Download Lab Data', '/downloads'], ['Community', '/socials'], ['$PUMPWIZARD', '/affiliate'], ['Legal & methodology', '/legal']]) {
       const link = document.createElement('a');
       link.href = market.href(path); link.textContent = label;
       const active = new URL(link.href).pathname === location.pathname || (path === '/socials' && location.pathname === '/contact');
