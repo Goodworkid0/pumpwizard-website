@@ -36,18 +36,19 @@
   };
   const requested = new URLSearchParams(location.search).get('market');
   const scoped = location.pathname === '/' || location.pathname === '/engine';
+  const selectedId = Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
   const localDemo = scoped && new URLSearchParams(location.search).get('local_demo') === '1' &&
     (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-  const id = scoped && Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
+  const id = scoped ? selectedId : 'pumpfun';
   const market = definitions[id];
   const href = path => {
     const url = new URL(path, location.origin);
-    if (url.pathname === '/' || url.pathname === '/engine') url.searchParams.set('market', id);
+    if (url.pathname === '/' || url.pathname === '/engine') url.searchParams.set('market', selectedId);
     else url.searchParams.delete('market');
     return url.pathname + url.search + url.hash;
   };
   window.PumpWizardMarket = {id, label: market.label, state: market.state, assurance: market.assurance,
-    isPreview: scoped && id !== 'pumpfun', scoped, localDemo, href};
+    isPreview: scoped && id !== 'pumpfun', scoped, selectedId, localDemo, href};
   document.documentElement.dataset.market = id;
   if (id !== 'pumpfun') document.body.dataset.marketPreview = 'true';
   const stylesheet = document.createElement('link');
@@ -317,11 +318,12 @@ window.PumpWizardHandoff = {
     '<button type="button" class="market-toggle-option pumpfun" data-market="pumpfun"><img class="market-logo" src="/assets/pump-logomark.svg" alt=""><span><b>Pump.fun</b><small>Live simulation</small></span></button>' +
     '<button type="button" class="market-toggle-option raydium-cpmm" data-market="raydium-cpmm"><img class="market-logo" src="/assets/raydium-logomark.svg" alt=""><span><b>Raydium</b><small>Observed simulation</small></span></button></div>';
   for (const option of control.querySelectorAll('[data-market]')) {
-    const selected = option.dataset.market === market.id;
+    const selected = option.dataset.market === market.selectedId;
     option.classList.toggle('selected', selected);
     option.setAttribute('aria-pressed', String(selected));
     option.addEventListener('click', () => {
       const url = new URL(location.href);
+      if (!market.scoped) url.pathname = '/';
       url.searchParams.set('market', option.dataset.market);
       location.assign(url.pathname + url.search + url.hash);
     });
@@ -439,7 +441,7 @@ window.PumpWizardHandoff = {
     navigation.className = 'site-navigation-row';
     if (brand) top.append(brand);
     if (ticker) top.append(ticker);
-    if (market.scoped) navigation.append(control);
+    navigation.append(control);
     navigation.append(nav);
     header.replaceChildren(top, navigation);
   }

@@ -47,8 +47,12 @@ with sync_playwright() as playwright:
     expect(page.locator('.market-context-panel')).to_be_hidden()
     assert 'market=pumpfun' in page.url
     page.goto(URL + '/research?market=raydium-cpmm', wait_until='domcontentloaded')
-    assert page.locator('.market-context-control').count() == 0
+    expect(page.locator('.market-context-control')).to_be_visible()
+    expect(page.locator('.market-toggle-option.raydium-cpmm')).to_have_attribute('aria-pressed', 'true')
     assert page.locator('.market-context-panel').count() == 0
+    with page.expect_navigation(wait_until='domcontentloaded'):
+        page.locator('.market-toggle-option.pumpfun').click()
+    assert page.url.endswith('/?market=pumpfun'), page.url
     for width in (390, 320):
         page.set_viewport_size({'width': width, 'height': 900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
