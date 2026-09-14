@@ -1,4 +1,4 @@
-"""Browser check for the public market selector and non-live Raydium view."""
+"""Browser check for the shared market selector and safe Raydium dashboard shell."""
 import os
 
 from playwright.sync_api import expect, sync_playwright
@@ -17,14 +17,16 @@ with sync_playwright() as playwright:
     page.goto(URL + '/?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-control select')).to_have_value('raydium-cpmm')
     expect(page.locator('.market-context-panel')).to_be_visible()
-    expect(page.locator('.market-context-panel')).to_contain_text('Published simulation P&L')
-    expect(page.locator('.market-context-panel')).to_contain_text('Not enabled')
-    assert page.locator('.portfolio').is_hidden()
+    expect(page.locator('.market-context-panel')).to_contain_text('Awaiting read model')
+    expect(page.locator('.portfolio')).to_be_visible()
+    expect(page.locator('.portfolio')).to_contain_text('Observed paper ledger')
+    expect(page.locator('#positions')).to_contain_text('No observed-ledger positions')
     assert not any('/api/public/' in request for request in requests), requests
     assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() >= 3
     page.goto(URL + '/engine?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-panel')).to_be_visible()
     expect(page.locator('.market-context-panel')).to_contain_text('Raydium CPMM')
+    expect(page.locator('#strategy-cards')).to_contain_text('No Raydium simulation strategies')
     with page.expect_navigation(wait_until='domcontentloaded'):
         page.locator('.market-context-control select').select_option('pumpfun')
     expect(page.locator('html')).to_have_attribute('data-market', 'pumpfun')

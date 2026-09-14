@@ -1,7 +1,7 @@
 (() => {
   const definitions = {
-    pumpfun: {label: 'Pump.fun', state: 'Live simulation'},
-    'raydium-cpmm': {label: 'Raydium CPMM', state: 'Evidence validation'}
+    pumpfun: {label: 'Pump.fun', state: 'Live simulation', assurance: 'Pump.fun market inputs'},
+    'raydium-cpmm': {label: 'Raydium CPMM', state: 'Observed simulation', assurance: 'Standard-RPC observed snapshots'}
   };
   const requested = new URLSearchParams(location.search).get('market');
   const id = Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
@@ -11,7 +11,8 @@
     url.searchParams.set('market', id);
     return url.pathname + url.search + url.hash;
   };
-  window.PumpWizardMarket = {id, label: market.label, state: market.state, isPreview: id !== 'pumpfun', href};
+  window.PumpWizardMarket = {id, label: market.label, state: market.state, assurance: market.assurance,
+    isPreview: id !== 'pumpfun', href};
   document.documentElement.dataset.market = id;
   if (id !== 'pumpfun') document.body.dataset.marketPreview = 'true';
   const stylesheet = document.createElement('link');
@@ -290,12 +291,53 @@ window.PumpWizardHandoff = {
       const panel = document.createElement('section');
       panel.className = 'market-context-panel';
       panel.setAttribute('aria-labelledby', 'market-context-title');
-      panel.innerHTML = '<div class="market-context-kicker"><span>Selected market</span><b>Raydium CPMM</b><em>Evidence validation</em></div>' +
-        '<h1 id="market-context-title">Raydium simulation is preparing its evidence base.</h1>' +
-        '<p>Public strategy P&amp;L, positions, and live signals stay unavailable until saved historical swaps pass the proof-linked validation gate. No Raydium trade, wallet, or simulation result is being mixed with Pump.fun.</p>' +
-        '<dl class="market-context-status"><div><dt>Pool, vault, and event replay</dt><dd>Ready</dd></div><div><dt>Historical quote validation</dt><dd>Ready</dd></div><div><dt>Representative real-data corpus</dt><dd>Next gate</dd></div><div><dt>Published simulation P&amp;L</dt><dd>Not enabled</dd></div></dl>' +
-        '<div class="market-context-actions"><a class="admin" href="/?market=pumpfun">View Pump.fun live simulation</a><a href="/legal?market=raydium-cpmm">Read methodology</a></div>';
+      panel.innerHTML = '<div class="market-context-kicker"><span>Selected market</span><b>Raydium CPMM</b><em>Observed simulation</em></div>' +
+        '<h1 id="market-context-title">The same PumpWizard dashboard, scoped to Raydium CPMM.</h1>' +
+        '<p>This market uses retained standard-RPC pool snapshots. Its ledger and health fields stay separate from Pump.fun; unpublished values remain unavailable rather than being inferred or relabelled.</p>' +
+        '<dl class="market-context-status"><div><dt>Data lane</dt><dd>Observed snapshots</dd></div><div><dt>Simulation denomination</dt><dd>Quote token</dd></div><div><dt>Write version</dt><dd>Unavailable</dd></div><div><dt>Published P&amp;L</dt><dd>Awaiting read model</dd></div></dl>';
       main.prepend(panel);
+    }
+    const text = (selector, value) => { const node = document.querySelector(selector); if (node) node.textContent = value; };
+    const empty = (selector, columns, value) => {
+      const node = document.querySelector(selector);
+      if (node) node.innerHTML = '<tr><td colspan="' + columns + '" class="empty">' + value + '</td></tr>';
+    };
+    if (location.pathname === '/') {
+      text('.research-live', 'Observed simulation · Raydium CPMM');
+      text('.research-title h1', 'Track a market. Inspect its simulation.');
+      text('.product-promise', 'PumpWizard presents the same market-simulation workflow for Raydium CPMM, with source health and assumptions kept visible.');
+      text('.portfolio .eyebrow', 'Simulation portfolio');
+      text('.portfolio h2', 'Observed paper ledger');
+      text('.metric.primary span', 'Quote-token marked equity');
+      text('#range-pnl-label', 'Quote-token P&L');
+      text('#wallet-count', 'Awaiting published observed ledger');
+      text('.live-mark', 'Observed marks');
+      text('#count', 'Awaiting published Raydium simulations');
+      text('#candidate-count', 'No pool monitor published');
+      text('#strategies .section-head h2', 'Raydium simulations');
+      text('.strategy-ranking .section-head h2', 'Raydium strategy policy');
+      text('.strategy-ranking .section-head span', 'No strategy results published');
+      document.querySelectorAll('.portfolio .range-switch, .strategy-tools .strategy-sort').forEach(node => node.hidden = true);
+      document.querySelector('#strategies-list')?.replaceChildren(Object.assign(document.createElement('p'), {className:'empty', textContent:'No Raydium paper simulations have been published yet.'}));
+      empty('#positions', 5, 'No observed-ledger positions have been published yet.');
+      empty('#closed', 6, 'No observed-ledger trade history has been published yet.');
+      empty('#top-strategies', 4, 'Awaiting Raydium strategy policy.');
+      empty('#worst-strategies', 4, 'Awaiting Raydium strategy policy.');
+      empty('#candidates', 4, 'No monitored Raydium pools have been published yet.');
+    } else if (location.pathname === '/engine') {
+      text('.strategy-intro h1', 'Raydium CPMM simulation engine');
+      text('.strategy-intro > p', 'This uses the same PumpWizard strategy workspace. Raydium results will appear here only after an isolated observed ledger and strategy policy are published.');
+      document.querySelector('.engine-method')?.remove();
+      document.querySelector('.lab-toolbar')?.setAttribute('hidden', '');
+      document.querySelector('.lab-pagination')?.setAttribute('hidden', '');
+      document.querySelector('#strategy-cards')?.replaceChildren(Object.assign(document.createElement('p'), {className:'empty', textContent:'No Raydium simulation strategies have been published yet.'}));
+      ['active-agents', 'activity-24h', 'entries-24h', 'open-positions-total', 'dead-instances'].forEach(id => text('#' + id, '—'));
+    } else if (location.pathname === '/research') {
+      text('.research-hero h1', 'Raydium CPMM research');
+      text('.research-hero > p', 'The same research workspace will present only separately recorded Raydium observed-simulation evidence.');
+      empty('#research-events', 5, 'No Raydium research events have been published yet.');
+    } else if (location.pathname.startsWith('/engine/')) {
+      main.replaceChildren(panel.cloneNode(true));
     }
   }
   const navLink = pathname => [...nav.querySelectorAll('a')].find(link => new URL(link.href).pathname === pathname);
