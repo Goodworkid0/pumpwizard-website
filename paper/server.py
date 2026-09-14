@@ -106,12 +106,12 @@ def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
                         if self.command != 'HEAD': self.wfile.write(body)
                     except (BrokenPipeError, ConnectionResetError): pass
                     return
-            elif path in ('/', '/app.js', '/nav.js', '/activity-feed.css', '/activity-controls.css', '/activity-token.css', '/leaderboard.css', '/leaderboard-fixes.css', '/market-radar.css', '/agent-live.css', '/agent-share.css', '/agent-hero.css', '/style.css', '/home-extra.css', '/acp', '/acp.js', '/acp.css',
+            elif path in ('/', '/app.js', '/nav.js', '/activity-feed.css', '/activity-controls.css', '/activity-token.css', '/leaderboard.css', '/leaderboard-fixes.css', '/market-radar.css', '/market-context.css', '/agent-live.css', '/agent-share.css', '/agent-hero.css', '/style.css', '/home-extra.css', '/acp', '/acp.js', '/acp.css',
                           '/strategy', '/strategy.js', '/strategy.css', '/engine', '/strategies.js',
                           '/strategies.css', '/legal', '/legal.css', '/hero-refresh.css',
                           '/positions-refresh.css', '/research', '/research.js', '/research.css', '/research-conditions.css',
                           '/affiliate', '/affiliate.css', '/contact', '/contact.css', '/contact.js', '/page-shell.css', '/strategy-analysis.js', '/strategy-comparison.js') or path.startswith('/engine/'):
-                name = {'/': 'index.html', '/app.js': 'app.js', '/nav.js': 'nav.js', '/activity-feed.css': 'activity-feed.css', '/activity-controls.css': 'activity-controls.css', '/activity-token.css': 'activity-token.css', '/leaderboard.css': 'leaderboard.css', '/leaderboard-fixes.css': 'leaderboard-fixes.css', '/market-radar.css': 'market-radar.css', '/agent-live.css': 'agent-live.css', '/agent-share.css': 'agent-share.css', '/agent-hero.css': 'agent-hero.css', '/style.css': 'style.css',
+                name = {'/': 'index.html', '/app.js': 'app.js', '/nav.js': 'nav.js', '/activity-feed.css': 'activity-feed.css', '/activity-controls.css': 'activity-controls.css', '/activity-token.css': 'activity-token.css', '/leaderboard.css': 'leaderboard.css', '/leaderboard-fixes.css': 'leaderboard-fixes.css', '/market-radar.css': 'market-radar.css', '/market-context.css': 'market-context.css', '/agent-live.css': 'agent-live.css', '/agent-share.css': 'agent-share.css', '/agent-hero.css': 'agent-hero.css', '/style.css': 'style.css',
                         '/home-extra.css': 'home-extra.css', '/acp': 'acp.html', '/acp.js': 'acp.js', '/acp.css': 'acp.css',
                         '/strategy': 'strategy.html', '/strategy.js': 'strategy.js',
                         '/strategy.css': 'strategy.css', '/engine': 'strategies.html',
@@ -123,7 +123,7 @@ def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
                         '/affiliate': 'affiliate.html', '/affiliate.css': 'affiliate.css',
                         '/contact': 'contact.html', '/contact.css': 'contact.css', '/contact.js': 'contact.js', '/page-shell.css': 'page-shell.css', '/strategy-analysis.js': 'strategy-analysis.js', '/strategy-comparison.js': 'strategy-comparison.js'}.get(path, 'strategy.html')
                 body = (root / name).read_bytes()
-                mime = {'/': 'text/html', '/app.js': 'text/javascript', '/nav.js': 'text/javascript', '/activity-feed.css': 'text/css', '/activity-controls.css': 'text/css', '/activity-token.css': 'text/css', '/leaderboard.css': 'text/css', '/leaderboard-fixes.css': 'text/css', '/market-radar.css': 'text/css', '/agent-live.css': 'text/css', '/agent-share.css': 'text/css', '/agent-hero.css': 'text/css', '/style.css': 'text/css',
+                mime = {'/': 'text/html', '/app.js': 'text/javascript', '/nav.js': 'text/javascript', '/activity-feed.css': 'text/css', '/activity-controls.css': 'text/css', '/activity-token.css': 'text/css', '/leaderboard.css': 'text/css', '/leaderboard-fixes.css': 'text/css', '/market-radar.css': 'text/css', '/market-context.css': 'text/css', '/agent-live.css': 'text/css', '/agent-share.css': 'text/css', '/agent-hero.css': 'text/css', '/style.css': 'text/css',
                         '/home-extra.css': 'text/css', '/acp': 'text/html', '/acp.js': 'text/javascript', '/acp.css': 'text/css',
                         '/strategy': 'text/html', '/strategy.js': 'text/javascript',
                         '/strategy.css': 'text/css', '/engine': 'text/html',

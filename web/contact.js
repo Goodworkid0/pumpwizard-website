@@ -1,4 +1,4 @@
-(() => {
+if (typeof window === 'undefined' || !window.PumpWizardMarket?.isPreview) (() => {
   const setLink = (id, url, ready, pending) => {
     const link = document.getElementById(id);
     if (!link) return;

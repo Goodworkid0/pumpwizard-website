@@ -1,3 +1,4 @@
+if (typeof window === 'undefined' || !window.PumpWizardMarket?.isPreview) {
 const $ = id => document.getElementById(id);
 const money = n => n == null ? '—' : new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
 const signed = n => (n >= 0 ? '+' : '−') + money(Math.abs(n));
@@ -228,3 +229,4 @@ async function refreshCatalog() {
 }
 async function refresh() { await refreshCatalog(); setTimeout(refresh, 10000); }
 refresh();
+}

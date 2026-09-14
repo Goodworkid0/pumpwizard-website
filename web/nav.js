@@ -1,3 +1,24 @@
+(() => {
+  const definitions = {
+    pumpfun: {label: 'Pump.fun', state: 'Live simulation'},
+    'raydium-cpmm': {label: 'Raydium CPMM', state: 'Evidence validation'}
+  };
+  const requested = new URLSearchParams(location.search).get('market');
+  const id = Object.prototype.hasOwnProperty.call(definitions, requested) ? requested : 'pumpfun';
+  const market = definitions[id];
+  const href = path => {
+    const url = new URL(path, location.origin);
+    url.searchParams.set('market', id);
+    return url.pathname + url.search + url.hash;
+  };
+  window.PumpWizardMarket = {id, label: market.label, state: market.state, isPreview: id !== 'pumpfun', href};
+  document.documentElement.dataset.market = id;
+  if (id !== 'pumpfun') document.body.dataset.marketPreview = 'true';
+  const stylesheet = document.createElement('link');
+  stylesheet.rel = 'stylesheet'; stylesheet.href = '/market-context.css';
+  document.head.append(stylesheet);
+})();
+
 window.PumpWizardPublic = (() => {
   const states = new Map();
   function show() {
@@ -86,6 +107,15 @@ window.PumpWizardHandoff = {
   const event=document.getElementById('live-event');
   const updated=document.getElementById('feed-updated');
   if(!status||!event||!updated)return;
+  if(window.PumpWizardMarket?.isPreview){
+    status.classList.add('unavailable');
+    status.lastChild.textContent=' Evidence status';
+    event.className='live-event';
+    event.textContent='Raydium simulation is not published yet';
+    updated.textContent='Validation only';
+    updated.removeAttribute('datetime');
+    return;
+  }
   if(!document.querySelector('link[href="/activity-feed.css"]')){
     const stylesheet=document.createElement('link');
     stylesheet.rel='stylesheet';
@@ -237,17 +267,49 @@ window.PumpWizardHandoff = {
 (() => {
   const nav = document.querySelector('.site-nav');
   if (!nav) return;
-  const legal = nav.querySelector('a[href="/legal"]');
-  if (!nav.querySelector('a[href="/affiliate"]')) {
+  const market = window.PumpWizardMarket;
+  const control = document.createElement('label');
+  control.className = 'market-context-control';
+  control.innerHTML = '<span>Market</span><select aria-label="Select market"><option value="pumpfun">Pump.fun · live simulation</option><option value="raydium-cpmm">Raydium CPMM · validation</option></select>';
+  const select = control.querySelector('select');
+  select.value = market.id;
+  select.addEventListener('change', () => {
+    const url = new URL(location.href);
+    url.searchParams.set('market', select.value);
+    location.assign(url.pathname + url.search + url.hash);
+  });
+  nav.before(control);
+  for (const link of document.querySelectorAll('a[href]')) {
+    const value = link.getAttribute('href');
+    if (!value || !/^\/(?:$|engine(?:\/|$)|research$|legal$|affiliate$|contact$)/.test(value)) continue;
+    link.href = market.href(value);
+  }
+  if (market.isPreview) {
+    const main = document.querySelector('main');
+    if (main) {
+      const panel = document.createElement('section');
+      panel.className = 'market-context-panel';
+      panel.setAttribute('aria-labelledby', 'market-context-title');
+      panel.innerHTML = '<div class="market-context-kicker"><span>Selected market</span><b>Raydium CPMM</b><em>Evidence validation</em></div>' +
+        '<h1 id="market-context-title">Raydium simulation is preparing its evidence base.</h1>' +
+        '<p>Public strategy P&amp;L, positions, and live signals stay unavailable until saved historical swaps pass the proof-linked validation gate. No Raydium trade, wallet, or simulation result is being mixed with Pump.fun.</p>' +
+        '<dl class="market-context-status"><div><dt>Pool, vault, and event replay</dt><dd>Ready</dd></div><div><dt>Historical quote validation</dt><dd>Ready</dd></div><div><dt>Representative real-data corpus</dt><dd>Next gate</dd></div><div><dt>Published simulation P&amp;L</dt><dd>Not enabled</dd></div></dl>' +
+        '<div class="market-context-actions"><a class="admin" href="/?market=pumpfun">View Pump.fun live simulation</a><a href="/legal?market=raydium-cpmm">Read methodology</a></div>';
+      main.prepend(panel);
+    }
+  }
+  const navLink = pathname => [...nav.querySelectorAll('a')].find(link => new URL(link.href).pathname === pathname);
+  const legal = navLink('/legal');
+  if (!navLink('/affiliate')) {
     const affiliate = document.createElement('a');
-    affiliate.href = '/affiliate';
+    affiliate.href = market.href('/affiliate');
     affiliate.textContent = '$PUMPWIZARD';
     if (location.pathname === '/affiliate') affiliate.setAttribute('aria-current', 'page');
     nav.insertBefore(affiliate, legal || null);
   }
-  if (!nav.querySelector('a[href="/contact"]')) {
+  if (!navLink('/contact')) {
     const contact = document.createElement('a');
-    contact.href = '/contact';
+    contact.href = market.href('/contact');
     contact.textContent = 'Contact';
     if (location.pathname === '/contact') contact.setAttribute('aria-current', 'page');
     nav.insertBefore(contact, legal || null);
