@@ -30,8 +30,7 @@ with sync_playwright() as playwright:
     assert page.locator('.site-nav a').filter(has_text='Legal').count() == 0
     expect(page.locator('.site-nav a')).to_contain_text(['Live Data', 'Live Strategies', 'Lab Research', 'Download Lab Data', 'Community', '$PUMPWIZARD'])
     expect(page.locator('footer .footer-links a').filter(has_text='Legal & methodology')).to_be_visible()
-    expect(page.locator('.market-context-panel')).to_be_visible()
-    expect(page.locator('.market-context-panel')).to_contain_text('Awaiting read model')
+    assert page.locator('.market-context-panel').count() == 0
     expect(page.locator('.portfolio')).to_be_visible()
     expect(page.locator('.portfolio')).to_contain_text('Observed paper ledger')
     expect(page.locator('#positions')).to_contain_text('No observed-ledger positions')
@@ -39,13 +38,12 @@ with sync_playwright() as playwright:
     assert page.locator('.site-nav a[href*="market=raydium-cpmm"]').count() == 6
     assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--mint').trim()") == '#14f195'
     page.goto(URL + '/engine?market=raydium-cpmm', wait_until='domcontentloaded')
-    expect(page.locator('.market-context-panel')).to_be_visible()
-    expect(page.locator('.market-context-panel')).to_contain_text('Raydium CPMM')
+    assert page.locator('.market-context-panel').count() == 0
     expect(page.locator('#strategy-cards')).to_contain_text('No Raydium simulation strategies')
     with page.expect_navigation(wait_until='domcontentloaded'):
         page.locator('.market-toggle-option.pumpfun').click()
     expect(page.locator('html')).to_have_attribute('data-market', 'pumpfun')
-    expect(page.locator('.market-context-panel')).to_be_hidden()
+    assert page.locator('.market-context-panel').count() == 0
     assert 'market=pumpfun' in page.url
     page.goto(URL + '/research?market=raydium-cpmm', wait_until='domcontentloaded')
     expect(page.locator('.market-context-control')).to_be_visible()

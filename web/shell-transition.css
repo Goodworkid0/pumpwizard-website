@@ -1,0 +1,76 @@
+/* Keep the old static markup from flashing before nav.js builds the shared shell. */
+body[data-shell-pending] .site-header,
+body[data-shell-pending] main,
+body[data-shell-pending] footer {
+  visibility: hidden;
+}
+
+/* Market names are the control; simulation context belongs in the page itself. */
+.market-toggle-option {
+  min-height: 34px;
+  padding: 6px 10px;
+}
+
+/* The Live Data community teaser is one clear route, not two unavailable actions. */
+.community.community-cta {
+  grid-template-columns: 1fr;
+}
+
+.community-cta .community-card {
+  align-items: flex-start;
+  min-height: 0;
+  padding: 26px;
+}
+
+.community-cta .community-card > p:not(.eyebrow) {
+  max-width: 680px;
+}
+
+.community-link,
+.history-export-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 17px;
+  color: #cbbaff;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.community-link:hover,
+.history-export-link:hover {
+  color: #ffffff;
+}
+
+.history-export-link {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+/* Browsers with cross-document view transitions get a subtle route change. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: pw-shell-fade-out 130ms ease-out both;
+}
+
+::view-transition-new(root) {
+  animation: pw-shell-fade-in 180ms ease-in both;
+}
+
+@keyframes pw-shell-fade-out {
+  to { opacity: 0; transform: translateY(-2px); }
+}
+
+@keyframes pw-shell-fade-in {
+  from { opacity: 0; transform: translateY(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

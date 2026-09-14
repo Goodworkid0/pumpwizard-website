@@ -18,7 +18,7 @@ with sync_playwright() as playwright:
     expect(page.locator('#positions')).to_contain_text('PUMP-DEMO')
     page.goto(URL + '/?market=raydium-cpmm&local_demo=1', wait_until='domcontentloaded')
     expect(page.locator('.local-demo-notice')).to_be_visible()
-    expect(page.locator('.market-context-panel')).to_contain_text('Observed simulation')
+    assert page.locator('.market-context-panel').count() == 0
     expect(page.locator('#wallet-equity')).to_contain_text('demo USDC')
     expect(page.locator('#positions')).to_contain_text('RAY-DEMO')
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')

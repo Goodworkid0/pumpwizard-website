@@ -50,26 +50,17 @@
     isPreview: scoped && id !== 'pumpfun', scoped, selectedId, localDemo, href};
   document.documentElement.dataset.market = id;
   if (id !== 'pumpfun') document.body.dataset.marketPreview = 'true';
-  const stylesheet = document.createElement('link');
-  stylesheet.rel = 'stylesheet'; stylesheet.href = '/market-context.css';
-  document.head.append(stylesheet);
+  if (!document.querySelector('link[href="/market-context.css"]')) {
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet'; stylesheet.href = '/market-context.css';
+    document.head.append(stylesheet);
+  }
 })();
 
 window.PumpWizardPublic = (() => {
   const states = new Map();
-  function show() {
-    let note = document.getElementById('public-freshness');
-    if (!note) {
-      note = document.createElement('p'); note.id = 'public-freshness'; note.setAttribute('role', 'status');
-      document.querySelector('main')?.before(note);
-    }
-    const rows = [...states.values()], unavailable = rows.some(row => row.unavailable);
-    const age = Math.max(0, ...rows.map(row => row.source_as_of ? Date.now()/1000-row.source_as_of : 0));
-    const stale = rows.some(row => row.stale) || age > 45;
-    note.className = stale || unavailable ? 'public-freshness stale' : 'public-freshness';
-    note.textContent = unavailable ? 'Public data temporarily unavailable · retrying. Previously loaded values may be stale.' :
-      (stale ? 'Delayed public snapshot' : 'Public snapshot') + ' · ' + Math.floor(age) + 's old';
-  }
+  // Snapshot health remains part of request handling; it is not public-facing copy.
+  function show() {}
   async function request(path, options = {}) {
     const key = new URL(path, location.origin).pathname;
     if (window.PumpWizardMarket?.localDemo) {
@@ -314,8 +305,8 @@ window.PumpWizardHandoff = {
   control.className = 'market-context-control';
   control.setAttribute('aria-label', 'Select market');
   control.innerHTML = '<span class="market-toggle-label">Market</span><div class="market-toggle" role="group" aria-label="Select market">' +
-    '<button type="button" class="market-toggle-option pumpfun" data-market="pumpfun"><img class="market-logo" src="/assets/pump-logomark.svg" alt=""><span><b>Pump.fun</b><small>Live simulation</small></span></button>' +
-    '<button type="button" class="market-toggle-option raydium-cpmm" data-market="raydium-cpmm"><img class="market-logo" src="/assets/raydium-logomark.svg" alt=""><span><b>Raydium</b><small>Observed simulation</small></span></button></div>';
+    '<button type="button" class="market-toggle-option pumpfun" data-market="pumpfun"><img class="market-logo" src="/assets/pump-logomark.svg" alt=""><span><b>Pump.fun</b></span></button>' +
+    '<button type="button" class="market-toggle-option raydium-cpmm" data-market="raydium-cpmm"><img class="market-logo" src="/assets/raydium-logomark.svg" alt=""><span><b>Raydium</b></span></button></div>';
   for (const option of control.querySelectorAll('[data-market]')) {
     const selected = option.dataset.market === market.selectedId;
     option.classList.toggle('selected', selected);
@@ -333,17 +324,6 @@ window.PumpWizardHandoff = {
     link.href = market.href(value);
   }
   if (market.isPreview) {
-    const main = document.querySelector('main');
-    if (main) {
-      const panel = document.createElement('section');
-      panel.className = 'market-context-panel';
-      panel.setAttribute('aria-labelledby', 'market-context-title');
-      panel.innerHTML = '<div class="market-context-kicker"><span>Selected market</span><b>Raydium CPMM</b><em>Observed simulation</em></div>' +
-        '<h1 id="market-context-title">The same PumpWizard dashboard, scoped to Raydium CPMM.</h1>' +
-        '<p>This market uses retained standard-RPC pool snapshots. Its ledger and health fields stay separate from Pump.fun; unpublished values remain unavailable rather than being inferred or relabelled.</p>' +
-        '<dl class="market-context-status"><div><dt>Data lane</dt><dd>Observed snapshots</dd></div><div><dt>Simulation denomination</dt><dd>Quote token</dd></div><div><dt>Write version</dt><dd>Unavailable</dd></div><div><dt>Published P&amp;L</dt><dd>Awaiting read model</dd></div></dl>';
-      main.prepend(panel);
-    }
     const text = (selector, value) => { const node = document.querySelector(selector); if (node) node.textContent = value; };
     const empty = (selector, columns, value) => {
       const node = document.querySelector(selector);
@@ -383,8 +363,6 @@ window.PumpWizardHandoff = {
       text('.research-hero h1', 'Raydium CPMM research');
       text('.research-hero > p', 'The same research workspace will present only separately recorded Raydium observed-simulation evidence.');
       empty('#research-events', 5, 'No Raydium research events have been published yet.');
-    } else if (location.pathname.startsWith('/engine/')) {
-      main.replaceChildren(panel.cloneNode(true));
     }
   }
   if (market.localDemo) {
@@ -462,6 +440,7 @@ window.PumpWizardHandoff = {
     }
     footer.replaceChildren(identity, links);
   }
+  document.body.removeAttribute('data-shell-pending');
 })();
 
 (() => {
