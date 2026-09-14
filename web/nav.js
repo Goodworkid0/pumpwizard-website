@@ -317,7 +317,11 @@ window.PumpWizardHandoff = {
     option.setAttribute('aria-pressed', String(selected));
     option.addEventListener('click', () => {
       const url = new URL(location.href);
-      if (!market.scoped) url.pathname = '/';
+      // Strategy IDs belong to a single market. Switching markets from a
+      // detail page must return to that market's catalog rather than trying
+      // to resolve the previous market's ID against a different reader.
+      if (location.pathname.startsWith('/engine/')) url.pathname = '/engine';
+      else if (!market.scoped) url.pathname = '/';
       url.searchParams.set('market', option.dataset.market);
       location.assign(url.pathname + url.search + url.hash);
     });
