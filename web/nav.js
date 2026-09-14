@@ -320,7 +320,7 @@ window.PumpWizardHandoff = {
   });
   for (const link of document.querySelectorAll('a[href]')) {
     const value = link.getAttribute('href');
-    if (!value || !/^\/(?:$|engine(?:\/|$)|research$|legal$|affiliate$|contact$)/.test(value)) continue;
+    if (!value || !/^\/(?:$|engine(?:\/|$)|research$|legal$|affiliate$|contact$|socials$|downloads$)/.test(value)) continue;
     link.href = market.href(value);
   }
   if (market.isPreview) {
@@ -388,32 +388,37 @@ window.PumpWizardHandoff = {
     }
   }
   const navLink = pathname => [...nav.querySelectorAll('a')].find(link => new URL(link.href).pathname === pathname);
+  const contact = navLink('/contact');
   const legal = navLink('/legal');
-  if (!navLink('/affiliate')) {
-    const affiliate = document.createElement('a');
-    affiliate.href = market.href('/affiliate');
-    affiliate.textContent = '$PUMPWIZARD';
-    if (location.pathname === '/affiliate') affiliate.setAttribute('aria-current', 'page');
-    nav.insertBefore(affiliate, legal || null);
-  }
-  if (!navLink('/contact')) {
-    const contact = document.createElement('a');
-    contact.href = market.href('/contact');
-    contact.textContent = 'Contact';
-    if (location.pathname === '/contact') contact.setAttribute('aria-current', 'page');
-    nav.insertBefore(contact, legal || null);
-  }
+  contact?.remove();
   legal?.remove();
+  const primaryItems = [
+    ['Live Data', '/'], ['Live Strategies', '/engine'], ['Lab Research', '/research'],
+    ['Download Lab Data', '/downloads'], ['$PUMPWIZARD', '/affiliate'], ['Socials', '/socials']
+  ];
+  const primaryLinks = primaryItems.map(([label, pathname]) => {
+    let link = navLink(pathname);
+    if (!link) link = document.createElement('a');
+    link.href = market.href(pathname); link.textContent = label;
+    const active = location.pathname === pathname ||
+      (pathname === '/engine' && location.pathname.startsWith('/engine/')) ||
+      (pathname === '/socials' && location.pathname === '/contact');
+    if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+    return link;
+  });
+  nav.replaceChildren(...primaryLinks);
 
   if (header && !header.classList.contains('market-shell')) {
     header.classList.add('market-shell');
     const brand = header.querySelector('.brand');
     const ticker = header.querySelector('.live-ticker');
-    if (brand && !brand.querySelector('.solana-mark')) {
-      const mark = document.createElement('span');
-      mark.className = 'solana-mark'; mark.setAttribute('aria-hidden', 'true');
-      mark.innerHTML = '<i></i><i></i><i></i>';
-      brand.prepend(mark);
+    if (brand && !brand.querySelector('.brand-logo')) {
+      brand.setAttribute('aria-label', 'PumpWizard Lab');
+      const logo = document.createElement('img');
+      logo.className = 'brand-logo'; logo.src = '/assets/brand/option-b-orbital-spark-logo-512.png'; logo.alt = '';
+      const name = document.createElement('span');
+      name.className = 'brand-name'; name.textContent = 'PumpWizard Lab';
+      brand.replaceChildren(logo, name);
     }
     const top = document.createElement('div');
     top.className = 'site-topbar';
@@ -430,10 +435,10 @@ window.PumpWizardHandoff = {
     footer.classList.add('market-footer');
     const identity = document.createElement('p');
     identity.className = 'footer-identity';
-    identity.textContent = 'PumpWizard.fun · public Solana market research and paper simulation';
+    identity.textContent = 'PumpWizard Lab · public Solana market research and paper simulation';
     const links = document.createElement('nav');
     links.className = 'footer-links'; links.setAttribute('aria-label', 'Footer navigation');
-    for (const [label, path] of [['Live View', '/'], ['Engine', '/engine'], ['Research', '/research'], ['Contact', '/contact'], ['Legal & methodology', '/legal']]) {
+    for (const [label, path] of [['Live Data', '/'], ['Live Strategies', '/engine'], ['Lab Research', '/research'], ['Download Lab Data', '/downloads'], ['$PUMPWIZARD', '/affiliate'], ['Socials', '/socials'], ['Legal & methodology', '/legal']]) {
       const link = document.createElement('a');
       link.href = market.href(path); link.textContent = label;
       if (new URL(link.href).pathname === location.pathname) link.setAttribute('aria-current', 'page');

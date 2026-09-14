@@ -3,7 +3,7 @@ import os
 from playwright.sync_api import sync_playwright
 
 URL = os.environ.get('PUMP_TEST_URL', 'http://127.0.0.1:8765').rstrip('/')
-ROUTES = ('/', '/engine', '/research', '/affiliate', '/contact', '/legal')
+ROUTES = ('/', '/engine', '/research', '/downloads', '/affiliate', '/socials', '/contact', '/legal')
 
 with sync_playwright() as playwright:
     browser = playwright.chromium.launch(executable_path='/usr/bin/chromium', headless=True,

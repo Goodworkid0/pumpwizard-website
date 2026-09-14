@@ -106,6 +106,12 @@ def serve(engine, port, brain=None, account=None, bind_host='127.0.0.1'):
                         if self.command != 'HEAD': self.wfile.write(body)
                     except (BrokenPipeError, ConnectionResetError): pass
                     return
+            elif path in ('/downloads', '/downloads.css', '/socials', '/assets/brand/option-b-orbital-spark-logo-512.png'):
+                name = {'/downloads': 'downloads.html', '/downloads.css': 'downloads.css', '/socials': 'contact.html',
+                        '/assets/brand/option-b-orbital-spark-logo-512.png': 'assets/brand/option-b-orbital-spark-logo-512.png'}[path]
+                body = (root / name).read_bytes()
+                mime = {'/downloads': 'text/html', '/downloads.css': 'text/css', '/socials': 'text/html',
+                        '/assets/brand/option-b-orbital-spark-logo-512.png': 'image/png'}[path]
             elif path in ('/', '/app.js', '/nav.js', '/activity-feed.css', '/activity-controls.css', '/activity-token.css', '/leaderboard.css', '/leaderboard-fixes.css', '/market-radar.css', '/market-context.css', '/agent-live.css', '/agent-share.css', '/agent-hero.css', '/style.css', '/home-extra.css', '/acp', '/acp.js', '/acp.css',
                           '/strategy', '/strategy.js', '/strategy.css', '/engine', '/strategies.js',
                           '/strategies.css', '/legal', '/legal.css', '/hero-refresh.css',
