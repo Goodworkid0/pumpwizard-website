@@ -1,0 +1,13 @@
+{
+  "schema": "pumpwizard.raydium-cpmm-pilot/v1",
+  "id": "near-usdc-observed-trend-v1",
+  "pool_id": "solana:CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C:gyYigqG8vdEMkDNTTVL6at2msbHdTDWyb6bccyR238U",
+  "base_mint": "3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
+  "quote_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "initial_quote_amount": 500000000,
+  "order_quote_amount": 50000000,
+  "base_probe_amount": 1000000000,
+  "confirmation_snapshots": 3,
+  "minimum_growth_bps": 50,
+  "max_hold_snapshots": 10
+}
