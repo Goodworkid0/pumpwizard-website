@@ -16,7 +16,7 @@ Pump.fun data.
   separate FX evidence.
 - Pump.fun remains the only live production simulation path.
 
-## Session sequence
+## Validation sequence
 
 1. Establish a reproducible local fixture.
    - Select one CPMM pool and record bootstrap, pool, vault and AmmConfig account

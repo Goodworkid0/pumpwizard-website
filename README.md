@@ -1,4 +1,8 @@
-# Pump Paper
+# PumpWizard Website
+
+PumpWizard Website combines market-data collection, paper-trading simulations, browser dashboards and reproducible strategy research.
+
+The companion [PumpWizard Runner](https://github.com/Goodworkid0/pumpwizard-runner) is a separate local application. See its release notes for the capabilities of each published version.
 
 A working **off-chain paper trader** for testing short-term Pump.fun strategies.
 It collects real public market observations and simulates buys and sells using
